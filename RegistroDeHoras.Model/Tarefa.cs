@@ -4,11 +4,12 @@ namespace RegistroDeHoras.Model;
 
 public class Tarefa : BaseModel
 {
-    public DateOnly DataDeInicio { get; set; }
-    public TimeOnly HoraDeInicio { get; set; }
-    public TimeOnly HoraDeTermino { get; set; }
-    public TimeOnly HorasDePausa { get; set; }
-    public TimeOnly HorasUtilizadas { get; set; }
+    public DateTime DataDeInicio { get; set; }
+    public DateTime DataDePausa { get; set; }
+    public DateTime DataDeReInicio { get; set; }
+    public DateTime DataDeTermino { get; set; }
+    public TimeSpan HorasDePausa { get; set; }
+    public TimeSpan HorasTrabalhadas { get; set; }
     public string? NumeroAtividade { get; set; }
     public string? Titulo { get; set; }
     public string? Cliente { get; set; }

@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RegistroDeHoras.Api;
@@ -40,7 +39,7 @@ public class TarefaController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CriarTarefa(string Titulo, string Cliente, string Descricao, string NumeroAtividade)
+    public async Task<ActionResult> CriarTarefa(string Titulo, string Cliente, string Descricao, string NumeroAtividade)
     {
         var tarefa = new Tarefa
         {
@@ -48,30 +47,39 @@ public class TarefaController : ControllerBase
             Cliente = Cliente,
             Descricao = Descricao,
             NumeroAtividade = NumeroAtividade,
-            DataDeInicio = DateOnly.FromDateTime(DateTime.Now),
-            HoraDeInicio = TimeOnly.FromDateTime(DateTime.Now)
+            DataDeInicio = DateTime.Now
         };
 
-        _context.Tarefas.Add(tarefa);
-        _context.SaveChanges();
+       await _context.Tarefas.AddAsync(tarefa);
+       await  _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(ObterTarefaPorIdAsync), new { id = tarefa.ID }, tarefa);
     }
 
     [HttpPost]
-    public IActionResult PararTarefa(Guid id, string status)
+    public async Task<ActionResult<Tarefa>> PararTarefa(Guid id, string status)
     {
         var tarefa = _context.Tarefas.Find(id);
 
         if (tarefa == null)
             return NotFound();
-        if(tarefa.StatusDaTarefa == "Pausada")
-            
-        tarefa.HorasDePausa = TimeOnly.FromDateTime(DateTime.Now);
 
-        _context.SaveChanges();
+        //reiniciar
+        if(tarefa.StatusDaTarefa == "Parada")
+        {
 
-        return NoContent();
+        }
+        //pausar
+        else if(tarefa.StatusDaTarefa == "Em andamento")
+        {            
+        }
+        else
+            return BadRequest();           
+
+        await _context.Tarefas.AddAsync(tarefa);
+        await _context.SaveChangesAsync();
+
+        return Ok(tarefa);
     }
 
     [HttpDelete("{id}")]
