@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,8 +49,7 @@ public class TarefaController : ControllerBase
             Cliente = Cliente,
             Descricao = Descricao,
             NumeroAtividade = NumeroAtividade,
-            DataDeInicio = DateOnly.FromDateTime(DateTime.Now),
-            HoraDeInicio = TimeOnly.FromDateTime(DateTime.Now)
+            Inicio = DateTime.Now,
         };
 
         _context.Tarefas.Add(tarefa);
@@ -59,17 +59,30 @@ public class TarefaController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult PararTarefa(Guid id, string status)
+    public async Task<IActionResult> PararTarefa(Guid id, string status)
     {
         var tarefa = _context.Tarefas.Find(id);
 
         if (tarefa == null)
             return NotFound();
-        if(tarefa.StatusDaTarefa == "Pausada")
-            
-        tarefa.HorasDePausa = TimeOnly.FromDateTime(DateTime.Now);
 
-        _context.SaveChanges();
+        if(tarefa.StatusDaTarefa == "Em adamento")
+        {   
+            tarefa.Pausa = DateTime.Now;
+            tarefa.StatusDaTarefa = "Parada";
+        }
+        else if(tarefa.StatusDaTarefa == "Parada")
+        {
+            tarefa.Reinicio = DateTime.Now;
+            tarefa.StatusDaTarefa = "Em adamento";
+        }
+        else
+        {
+            return BadRequest();
+        }                    
+        
+        await _context.Tarefas.AddAsync(tarefa);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
