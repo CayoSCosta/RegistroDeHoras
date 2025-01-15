@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RegistroDeHoras.Api;
@@ -41,7 +39,7 @@ public class TarefaController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CriarTarefa(string Titulo, string Cliente, string Descricao, string NumeroAtividade)
+    public async Task<ActionResult> CriarTarefa(string Titulo, string Cliente, string Descricao, string NumeroAtividade)
     {
         var tarefa = new Tarefa
         {
@@ -52,8 +50,8 @@ public class TarefaController : ControllerBase
             Inicio = DateTime.Now,
         };
 
-        _context.Tarefas.Add(tarefa);
-        _context.SaveChanges();
+       await _context.Tarefas.AddAsync(tarefa);
+       await  _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(ObterTarefaPorIdAsync), new { id = tarefa.ID }, tarefa);
     }
@@ -84,7 +82,7 @@ public class TarefaController : ControllerBase
         await _context.Tarefas.AddAsync(tarefa);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        return Ok(tarefa);
     }
 
     [HttpDelete("{id}")]
