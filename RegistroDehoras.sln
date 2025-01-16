@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegistroDeHoras.Model", "Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegistroDeHoras.Client", "RegistroDeHoras.Client\RegistroDeHoras.Client.csproj", "{0766CB80-52A2-47D5-ACBE-7B7237B34414}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testes", "Testes\Testes.csproj", "{DA2D300A-7F8E-4E2B-8CE7-A24CC3C6ED6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{0766CB80-52A2-47D5-ACBE-7B7237B34414}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0766CB80-52A2-47D5-ACBE-7B7237B34414}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0766CB80-52A2-47D5-ACBE-7B7237B34414}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA2D300A-7F8E-4E2B-8CE7-A24CC3C6ED6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA2D300A-7F8E-4E2B-8CE7-A24CC3C6ED6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA2D300A-7F8E-4E2B-8CE7-A24CC3C6ED6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA2D300A-7F8E-4E2B-8CE7-A24CC3C6ED6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

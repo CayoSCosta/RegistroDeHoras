@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RegistroDeHoras.Api;
+using RegistroDeHoras.Api.Services;
 using RegistroDeHoras.Model;
 
 namespace TarefaDeHoras.Api.Controllers;
@@ -9,13 +10,15 @@ namespace TarefaDeHoras.Api.Controllers;
 [ApiController]
 public class TarefaController : ControllerBase
 {
-    private readonly ILogger<TarefaController> _logger;
+    private readonly ILogger<TarefaController>? _logger;
     private readonly AppDbContext _context;
+    private readonly ITarefaServices _tarefaServices;
 
-    public TarefaController(ILogger<TarefaController> logger, AppDbContext context)
+    public TarefaController(ILogger<TarefaController>? logger, AppDbContext context, ITarefaServices tarefaServices)
     {
         _logger = logger;
         _context = context;
+        _tarefaServices = tarefaServices;
     }
 
     [HttpGet]
@@ -27,7 +30,7 @@ public class TarefaController : ControllerBase
         return await _context.Tarefas.ToListAsync();
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{Guid}")]
     public async Task<ActionResult<Tarefa>> ObterTarefaPorIdAsync(Guid id)
     {
         var tarefa = await _context.Tarefas.FindAsync(id);
@@ -38,25 +41,36 @@ public class TarefaController : ControllerBase
         return tarefa;
     }
 
-    [HttpPost]
+    [HttpPost("Nova")]
     public async Task<ActionResult> CriarTarefa(string Titulo, string Cliente, string Descricao, string NumeroAtividade)
     {
-        var tarefa = new Tarefa
+        try
         {
-            Titulo = Titulo,
-            Cliente = Cliente,
-            Descricao = Descricao,
-            NumeroAtividade = NumeroAtividade,
-            Inicio = DateTime.Now,
-        };
+            _logger?.LogInformation("Iniciando criação de uma nova tarefa com Titulo: {Titulo}", Titulo);
 
-       await _context.Tarefas.AddAsync(tarefa);
-       await  _context.SaveChangesAsync();
+            var tarefa = new Tarefa
+            {
+                Titulo = Titulo,
+                Cliente = Cliente,
+                Descricao = Descricao,
+                NumeroAtividade = NumeroAtividade,
+                Inicio = DateTime.Now,
+            };
 
-        return CreatedAtAction(nameof(ObterTarefaPorIdAsync), new { id = tarefa.ID }, tarefa);
+            await _context.Tarefas.AddAsync(tarefa);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(ObterTarefaPorIdAsync), new { id = tarefa.ID }, tarefa);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException);
+            return BadRequest();
+        }
+
     }
 
-    [HttpPost]
+    [HttpPost("Parar/{id}")]
     public async Task<IActionResult> PararTarefa(Guid id, string status)
     {
         var tarefa = _context.Tarefas.Find(id);
@@ -64,12 +78,13 @@ public class TarefaController : ControllerBase
         if (tarefa == null)
             return NotFound();
 
-        if(tarefa.StatusDaTarefa == "Em adamento")
-        {   
+        if (tarefa.StatusDaTarefa == "Em adamento")
+        {
             tarefa.Pausa = DateTime.Now;
+            tarefa.HorasDePausa = tarefa.HorasDePausa + (tarefa.Pausa - tarefa.Inicio);
             tarefa.StatusDaTarefa = "Parada";
         }
-        else if(tarefa.StatusDaTarefa == "Parada")
+        else if (tarefa.StatusDaTarefa == "Parada")
         {
             tarefa.Reinicio = DateTime.Now;
             tarefa.StatusDaTarefa = "Em adamento";
@@ -77,15 +92,34 @@ public class TarefaController : ControllerBase
         else
         {
             return BadRequest();
-        }                    
-        
+        }
+
         await _context.Tarefas.AddAsync(tarefa);
         await _context.SaveChangesAsync();
 
         return Ok(tarefa);
     }
 
-    [HttpDelete("{id}")]
+    [HttpPost("Finalizar/{id}")]
+    public async Task<IActionResult> FinalizarTarefa(Guid id)
+    {
+        var tarefa = _context.Tarefas.Find(id);
+
+        if (tarefa == null)
+            return NotFound();
+
+        tarefa.Termino = DateTime.Now;
+        tarefa.HorasUtilizadas = _tarefaServices.CalcularHorasUtilizadas(tarefa.Termino, tarefa.Reinicio, tarefa.Pausa, tarefa.Inicio);
+        tarefa.HorasDePausa = _tarefaServices.CalcularhorasDePausa(tarefa.Reinicio, tarefa.Pausa);
+        tarefa.StatusDaTarefa = "Finalizada";
+
+        await _context.Tarefas.AddAsync(tarefa);
+        await _context.SaveChangesAsync();
+
+        return Ok(tarefa);
+    }
+
+    [HttpDelete("Deletar/{id}")]
     public IEnumerable<Tarefa> DeletarTarefaTarefa(Guid Id)
     {
         throw new NotImplementedException();
