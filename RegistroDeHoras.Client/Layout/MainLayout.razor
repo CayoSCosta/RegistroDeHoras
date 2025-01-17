@@ -1,19 +1,24 @@
 ﻿@inherits LayoutComponentBase
-
-<MudThemingProvider />
+@* Required *@
+<MudThemeProvider />
 <MudPopoverProvider />
+
+@* Needed for dialogs *@
 <MudDialogProvider />
+
+@* Needed for snackbars *@
 <MudSnackbarProvider />
 
 <MudLayout>
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudText Typo="Typo.h5" Class="ml-3">Controle de Atividades</MudText>
         <MudSpacer />
-        @* <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Edge="Edge.End"> *@
+        <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Edge="Edge.End">
             <MudMenu FullWidth="true">
                 <ActivatorContent>
                 @* <MudChip Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Primary" /> *@
+                <MudAvatar Color="Color.Tertiary">V</MudAvatar>
                 </ActivatorContent>
                 <ChildContent>
                     <MudMenuItem>Profile</MudMenuItem>
@@ -22,7 +27,7 @@
                     <MudMenuItem>Sign Out</MudMenuItem>
                 </ChildContent>
             </MudMenu>
-        @* </MudIconButton> *@
+        </MudIconButton>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />

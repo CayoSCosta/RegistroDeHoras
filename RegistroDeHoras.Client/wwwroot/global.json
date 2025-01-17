@@ -1,0 +1,5 @@
+{
+  "EdgeUol.PortalCliente.Server": {
+    "Endpoint": "http://localhost:5074/"
+  }
+}
