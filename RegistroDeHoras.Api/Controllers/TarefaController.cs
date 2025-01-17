@@ -30,7 +30,7 @@ public class TarefaController : ControllerBase
         return await _context.Tarefas.ToListAsync();
     }
 
-    [HttpGet("{Guid}")]
+    [HttpGet("{id:guid}")]
     public async Task<ActionResult<Tarefa>> ObterTarefaPorIdAsync(Guid id)
     {
         var tarefa = await _context.Tarefas.FindAsync(id);
@@ -38,36 +38,31 @@ public class TarefaController : ControllerBase
         if (tarefa == null)
             return NotFound();
 
-        return tarefa;
+        return Ok(tarefa);
     }
 
     [HttpPost("Nova")]
-    public async Task<ActionResult> CriarTarefa(string Titulo, string Cliente, string Descricao, string NumeroAtividade)
+    [ProducesResponseType(typeof(Tarefa), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> CriarTarefa(string titulo, string cliente, string descricao, string numeroAtividade)
     {
-        try
+        _logger?.LogInformation("Iniciando criação de uma nova tarefa com Titulo: {Titulo}", titulo);
+
+        var tarefa = new Tarefa
         {
-            _logger?.LogInformation("Iniciando criação de uma nova tarefa com Titulo: {Titulo}", Titulo);
+            Titulo = titulo,
+            Cliente = cliente,
+            Descricao = descricao,
+            NumeroAtividade = numeroAtividade,
+            Inicio = DateTime.Now,
+        };
 
-            var tarefa = new Tarefa
-            {
-                Titulo = Titulo,
-                Cliente = Cliente,
-                Descricao = Descricao,
-                NumeroAtividade = NumeroAtividade,
-                Inicio = DateTime.Now,
-            };
+        await _context.Tarefas.AddAsync(tarefa);
+        await _context.SaveChangesAsync();
 
-            await _context.Tarefas.AddAsync(tarefa);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(ObterTarefaPorIdAsync), new { id = tarefa.ID }, tarefa);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.InnerException);
-            return BadRequest();
-        }
-
+        // Verificar se a rota está funcionando corretamente
+        //return CreatedAtAction(nameof(ObterTarefaPorIdAsync), new { id = tarefa.Id }, tarefa);
+        return Ok(tarefa);
     }
 
     [HttpPost("Parar/{id}")]
