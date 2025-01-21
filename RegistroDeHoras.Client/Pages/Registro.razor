@@ -1,0 +1,63 @@
+﻿@page "/registro"
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
+    <MudCard Elevation="4" Class="p-4">
+        <MudText Typo="Typo.h5" Class="mb-4">Atividade</MudText>
+
+        <MudGrid Spacing="2">
+            <!-- Campo Ticket -->
+            <MudItem xs="12" md="6">
+                <MudTextField Label="Ticket" Variant="Variant.Outlined" @bind-Value="ticket" />
+            </MudItem>
+
+            <!-- Campo Hora -->
+            <MudItem xs="12" md="6">
+                <MudTimePicker Label="Hora de Início" AmPm="false" @bind-Time="horaInicio" />
+            </MudItem>
+
+            <!-- Campo Cliente -->
+            <MudItem xs="12" md="12">
+                <MudTextField Label="Cliente" Variant="Variant.Outlined" @bind-Value="cliente" />
+            </MudItem>
+
+            <!-- Campo Título da Atividade -->
+            <MudItem xs="12" md="12">
+                <MudTextField Label="Título da Atividade" Variant="Variant.Outlined" @bind-Value="tituloAtividade" />
+            </MudItem>
+
+            <!-- Campo Descrição do Problema -->
+            <MudItem xs="12">
+                <MudTextField Label="Descrição do Problema" Variant="Variant.Outlined" Lines="5" 
+                              @bind-Value="descricaoProblema" />
+            </MudItem>
+
+            <!-- Botões de Ação -->
+            <MudItem xs="12" Class="d-flex justify-space-between mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="PausarAtividade">
+                    Pausar Atividade
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="EncerrarAtividade">
+                    Encerrar Atividade
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudCard>
+</MudContainer>
+
+
+@code {
+    private string ticket = string.Empty;
+    private string cliente = string.Empty;
+    private DateTime? horaInicio;
+    private string tituloAtividade = string.Empty;
+    private string descricaoProblema = string.Empty;
+
+    private void PausarAtividade()
+    {
+        // Lógica para pausar a atividade
+    }
+
+    private void EncerrarAtividade()
+    {
+        // Lógica para encerrar a atividade
+    }
+}

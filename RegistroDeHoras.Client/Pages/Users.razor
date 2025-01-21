@@ -1,0 +1,113 @@
+﻿@page "/users"
+@inject HttpClient Http
+
+<PageTitle>Users</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudText Typo="Typo.h4" Class="mb-2">User Management</MudText>
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Manage and view the list of users. Use the search bar to find specific users.
+    </MudText>
+
+    <MudTextField @bind-Value="searchTerm" Label="Search Users" Variant="Variant.Outlined" 
+                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                  Class="mb-4" Immediate="true" OnKeyUp="@FilterUsers" />
+
+    <MudTable Items="filteredUsers" Bordered="true" Hover="true" Dense="true" Class="mb-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.subtitle2">Users List</MudText>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTr>
+                <MudTd DataLabel="ID">@context.Id</MudTd>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Email">@context.Email</MudTd>
+                <MudTd>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => ViewUserDetails(context))">
+                        View
+                    </MudButton>
+                </MudTd>
+            </MudTr>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+    <MudDialog @bind-IsVisible="isDialogOpen">
+        <DialogContent>
+            <MudText Typo="Typo.h6">User Details</MudText>
+            @if (selectedUser != null)
+            {
+                <MudText Typo="Typo.body1" Class="mt-2">Name: @selectedUser.Name</MudText>
+                <MudText Typo="Typo.body1">Email: @selectedUser.Email</MudText>
+            }
+            else
+            {
+                <MudText Typo="Typo.body1">No user selected.</MudText>
+            }
+        </DialogContent>
+        <DialogActions>
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="@CloseDialog">Close</MudButton>
+        </DialogActions>
+    </MudDialog>
+</MudContainer>
+
+@code {
+    private List<User> users = new();
+    private List<User> filteredUsers = new();
+    private string searchTerm = string.Empty;
+    private User? selectedUser;
+    private bool isDialogOpen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Mock user data
+        users = new List<User>
+        {
+            new User { Id = 1, Name = "Alice Johnson", Email = "alice@example.com" },
+            new User { Id = 2, Name = "Bob Smith", Email = "bob@example.com" },
+            new User { Id = 3, Name = "Charlie Brown", Email = "charlie@example.com" },
+        };
+
+        filteredUsers = users;
+    }
+
+    private void FilterUsers()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredUsers = users;
+        }
+        else
+        {
+            filteredUsers = users.Where(u => u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                             u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+
+    private void ViewUserDetails(User user)
+    {
+        selectedUser = user;
+        isDialogOpen = true;
+    }
+
+    private void CloseDialog()
+    {
+        isDialogOpen = false;
+        selectedUser = null;
+    }
+
+    private class User
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Email { get; set; }
+    }
+}

@@ -1,0 +1,111 @@
+﻿@page "/security"
+
+<PageTitle>Security Management</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudText Typo="Typo.h4" Class="mb-2">Security Management</MudText>
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Manage roles, permissions, and monitor recent security activities.
+    </MudText>
+
+    <MudTabs>
+        <MudTabPanel Text="Roles & Permissions">
+            <MudText Typo="Typo.h6" Class="mb-2">Manage Roles and Permissions</MudText>
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Add New Role" Variant="Variant.Outlined" @bind-Value="newRole" />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="AddRole">
+                        Add Role
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+            <MudTable Items="roles" Dense="true" Bordered="true" Class="mt-4">
+                <HeaderContent>
+                    <MudTh>Role</MudTh>
+                    <MudTh>Permissions</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTr>
+                        <MudTd DataLabel="Role">@context.RoleName</MudTd>
+                        <MudTd DataLabel="Permissions">@string.Join(", ", context.Permissions)</MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => EditRole(context))">
+                                Edit
+                            </MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="@(() => DeleteRole(context))">
+                                Delete
+                            </MudButton>
+                        </MudTd>
+                    </MudTr>
+                </RowTemplate>
+            </MudTable>
+        </MudTabPanel>
+        <MudTabPanel Text="Activity Log">
+            <MudText Typo="Typo.h6" Class="mb-2">Recent Security Activities</MudText>
+            <MudTable Items="activityLogs" Dense="true" Hover="true" Bordered="true" Class="mt-4">
+                <HeaderContent>
+                    <MudTh>Timestamp</MudTh>
+                    <MudTh>User</MudTh>
+                    <MudTh>Action</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTr>
+                        <MudTd DataLabel="Timestamp">@context.Timestamp.ToString("g")</MudTd>
+                        <MudTd DataLabel="User">@context.User</MudTd>
+                        <MudTd DataLabel="Action">@context.Action</MudTd>
+                    </MudTr>
+                </RowTemplate>
+            </MudTable>
+        </MudTabPanel>
+    </MudTabs>
+</MudContainer>
+
+@code {
+    private string newRole = string.Empty;
+    private List<Role> roles = new()
+    {
+        new Role { RoleName = "Admin", Permissions = new List<string> { "Read", "Write", "Delete" } },
+        new Role { RoleName = "User", Permissions = new List<string> { "Read", "Write" } },
+        new Role { RoleName = "Viewer", Permissions = new List<string> { "Read" } },
+    };
+
+    private List<ActivityLog> activityLogs = new()
+    {
+        new ActivityLog { Timestamp = DateTime.Now.AddMinutes(-10), User = "Admin", Action = "Deleted a user" },
+        new ActivityLog { Timestamp = DateTime.Now.AddMinutes(-30), User = "User1", Action = "Updated profile settings" },
+        new ActivityLog { Timestamp = DateTime.Now.AddHours(-1), User = "Admin", Action = "Added new role: Moderator" },
+    };
+
+    private void AddRole()
+    {
+        if (!string.IsNullOrWhiteSpace(newRole))
+        {
+            roles.Add(new Role { RoleName = newRole, Permissions = new List<string> { "Read" } });
+            newRole = string.Empty;
+        }
+    }
+
+    private void EditRole(Role role)
+    {
+        // Logic for editing a role
+    }
+
+    private void DeleteRole(Role role)
+    {
+        roles.Remove(role);
+    }
+
+    private class Role
+    {
+        public string RoleName { get; set; } = string.Empty;
+        public List<string> Permissions { get; set; } = new();
+    }
+
+    private class ActivityLog
+    {
+        public DateTime Timestamp { get; set; }
+        public string User { get; set; } = string.Empty;
+        public string Action { get; set; } = string.Empty;
+    }
+}
