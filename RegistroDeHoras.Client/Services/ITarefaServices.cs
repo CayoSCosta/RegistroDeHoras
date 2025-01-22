@@ -1,13 +1,14 @@
-using RegistroDeHoras.Model;
+
+using RegistroDeHoras.Model.ViewModels;
 
 namespace RegistroDeHoras.Client.Services;
 
     public interface ITarefaServices
     {
-        Task<IEnumerable<Tarefa>> ObterTodosTarefasAsync();
-        Task<Tarefa> ObterTarefaPorIdAsync(Guid id);
-        Task<Tarefa> CriarTarefaAsync(string titulo, string cliente, string descricao, string numeroAtividade);
-        Task<Tarefa> PararTarefaAsync(Guid id, string status);
-        Task<Tarefa> FinalizarTarefaAsync(Guid id);
+        Task<IEnumerable<TarefaViewModels>> ObterTodosTarefasAsync();
+        Task<TarefaViewModels> ObterTarefaPorIdAsync(Guid id);
+        Task<TarefaViewModels> CriarTarefaAsync(string titulo, string cliente, string descricao, string numeroAtividade);
+        Task<TarefaViewModels> PararTarefaAsync(Guid id, string status);
+        Task<TarefaViewModels> FinalizarTarefaAsync(Guid id);
         Task<bool> DeletarTarefaAsync(Guid id);
     }

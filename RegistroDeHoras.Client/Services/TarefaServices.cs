@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using RegistroDeHoras.Model;
+using RegistroDeHoras.Model.ViewModels;
 
 namespace RegistroDeHoras.Client.Services;
 
@@ -12,47 +13,52 @@ namespace RegistroDeHoras.Client.Services;
             _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<Tarefa>> ObterTodosTarefasAsync()
+        public async Task<IEnumerable<TarefaViewModels>> ObterTodosTarefasAsync()
         {
-            return await _httpClient.GetFromJsonAsync<IEnumerable<Tarefa>>("api/Tarefa");
+            var result = await _httpClient.GetFromJsonAsync<IEnumerable<TarefaViewModels>>("api/Tarefa");
+            return result ?? Enumerable.Empty<TarefaViewModels>();
         }
 
-        public async Task<Tarefa> ObterTarefaPorIdAsync(Guid id)
+        public async Task<TarefaViewModels> ObterTarefaPorIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<Tarefa>($"api/Tarefa/{id}");
+            var result =  await _httpClient.GetFromJsonAsync<TarefaViewModels>($"api/Tarefa/{id}");
+            return result ?? new TarefaViewModels();
         }
 
-        public async Task<Tarefa> CriarTarefaAsync(string titulo, string cliente, string descricao, string numeroAtividade)
+        public async Task<TarefaViewModels> CriarTarefaAsync(string titulo, string cliente, string descricao, string numeroAtividade)
         {
             var response = await _httpClient.PostAsJsonAsync("api/Tarefa/Nova", new { titulo, cliente, descricao, numeroAtividade });
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<Tarefa>();
+                var result = await response.Content.ReadFromJsonAsync<TarefaViewModels>();
+                return result ?? new TarefaViewModels();
             }
 
             throw new ApplicationException("Erro ao criar a tarefa.");
         }
 
-        public async Task<Tarefa> PararTarefaAsync(Guid id, string status)
+        public async Task<TarefaViewModels> PararTarefaAsync(Guid id, string status)
         {
             var response = await _httpClient.PostAsJsonAsync($"api/Tarefa/Parar/{id}", new { status });
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<Tarefa>();
+                var result = await response.Content.ReadFromJsonAsync<TarefaViewModels>();
+                return result ?? new TarefaViewModels();
             }
 
             throw new ApplicationException("Erro ao parar a tarefa.");
         }
 
-        public async Task<Tarefa> FinalizarTarefaAsync(Guid id)
+        public async Task<TarefaViewModels> FinalizarTarefaAsync(Guid id)
         {
             var response = await _httpClient.PostAsync($"api/Tarefa/Finalizar/{id}", null);
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<Tarefa>();
+                var result = await response.Content.ReadFromJsonAsync<TarefaViewModels>();
+                return result ?? new TarefaViewModels();
             }
 
             throw new ApplicationException("Erro ao finalizar a tarefa.");

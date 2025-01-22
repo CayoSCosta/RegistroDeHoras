@@ -1,63 +1,79 @@
 ﻿@page "/registro"
+@inject ITarefaServices TarefaServices;
+
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
     <MudCard Elevation="4" Class="p-4">
-        <MudText Typo="Typo.h5" Class="mb-4">Atividade</MudText>
+        <MudText Typo="Typo.h5" Class="mb-4">tarefa</MudText>
+        <EditForm Model="@tarefa" OnValidSubmit="Enviartarefa">
+            <MudGrid Spacing="2">
+                <!-- Campo Número da tarefa -->
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Número da tarefa" Variant="Variant.Outlined"
+                        @bind-Value="tarefa.NumeroAtividade" Required="true"
+                        ErrorText="@ValidationMessage(nameof(tarefa.NumeroAtividade))" />
+                </MudItem>
 
-        <MudGrid Spacing="2">
-            <!-- Campo Ticket -->
-            <MudItem xs="12" md="6">
-                <MudTextField Label="Ticket" Variant="Variant.Outlined" @bind-Value="ticket" />
-            </MudItem>
+                <!-- Campo Cliente -->
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Cliente" Variant="Variant.Outlined" @bind-Value="tarefa.Cliente"
+                        Required="true" ErrorText="@ValidationMessage(nameof(tarefa.Cliente))" />
+                </MudItem>
 
-            <!-- Campo Hora -->
-            <MudItem xs="12" md="6">
-                <MudTimePicker Label="Hora de Início" AmPm="false" @bind-Time="horaInicio" />
-            </MudItem>
+                <!-- Campo Título -->
+                <MudItem xs="12">
+                    <MudTextField Label="Título" Variant="Variant.Outlined" @bind-Value="tarefa.Titulo"
+                        Required="true" ErrorText="@ValidationMessage(nameof(tarefa.Titulo))" />
+                </MudItem>
 
-            <!-- Campo Cliente -->
-            <MudItem xs="12" md="12">
-                <MudTextField Label="Cliente" Variant="Variant.Outlined" @bind-Value="cliente" />
-            </MudItem>
+                <!-- Campo Descrição -->
+                <MudItem xs="12">
+                    <MudTextField Label="Descrição do Problema" Variant="Variant.Outlined" Lines="5"
+                        @bind-Value="tarefa.Descricao" Required="true"
+                        ErrorText="@ValidationMessage(nameof(tarefa.Descricao))" />
+                </MudItem>
 
-            <!-- Campo Título da Atividade -->
-            <MudItem xs="12" md="12">
-                <MudTextField Label="Título da Atividade" Variant="Variant.Outlined" @bind-Value="tituloAtividade" />
-            </MudItem>
-
-            <!-- Campo Descrição do Problema -->
-            <MudItem xs="12">
-                <MudTextField Label="Descrição do Problema" Variant="Variant.Outlined" Lines="5" 
-                              @bind-Value="descricaoProblema" />
-            </MudItem>
-
-            <!-- Botões de Ação -->
-            <MudItem xs="12" Class="d-flex justify-space-between mt-4">
-                <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="PausarAtividade">
-                    Pausar Atividade
-                </MudButton>
-                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="EncerrarAtividade">
-                    Encerrar Atividade
-                </MudButton>
-            </MudItem>
-        </MudGrid>
+                <!-- Botões -->
+                <MudItem xs="12" Class="d-flex justify-end mt-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" Type="Submit">
+                        Iniciar tarefa
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        </EditForm>
     </MudCard>
 </MudContainer>
 
-
 @code {
-    private string ticket = string.Empty;
-    private string cliente = string.Empty;
-    private DateTime? horaInicio;
-    private string tituloAtividade = string.Empty;
-    private string descricaoProblema = string.Empty;
+    private TarefaViewModels tarefa = new();
 
-    private void PausarAtividade()
+    private async Task Enviartarefa()
     {
-        // Lógica para pausar a atividade
+        try
+        {
+            if (!string.IsNullOrEmpty(tarefa.NumeroAtividade) && !string.IsNullOrEmpty(tarefa.Cliente) && 
+                                    !string.IsNullOrEmpty(tarefa.Titulo) && !string.IsNullOrEmpty(tarefa.Descricao))
+            {
+                await TarefaServices.CriarTarefaAsync(tarefa.NumeroAtividade, tarefa.Cliente, tarefa.Titulo, tarefa.Descricao);
+                Console.WriteLine("tarefa iniciada com sucesso!");
+            }
+            else
+            {
+                Console.WriteLine("Erro: Todos os campos são obrigatórios.");
+            }
+            Console.WriteLine("tarefa iniciada com sucesso!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao enviar: {ex.Message}");
+        }
     }
 
-    private void EncerrarAtividade()
+    private string? ValidationMessage(string propertyName)
     {
-        // Lógica para encerrar a atividade
+        var validationContext = new ValidationContext(tarefa) { MemberName = propertyName };
+        var results = new List<ValidationResult>();
+        Validator.TryValidateProperty(
+        tarefa.GetType().GetProperty(propertyName)?.GetValue(tarefa), validationContext, results);
+        return results.FirstOrDefault()?.ErrorMessage;
     }
 }

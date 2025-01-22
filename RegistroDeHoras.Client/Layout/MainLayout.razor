@@ -1,47 +1,60 @@
 ﻿@inherits LayoutComponentBase
-@* Required *@
-<MudThemeProvider />
+
 <MudPopoverProvider />
-
-@* Needed for dialogs *@
 <MudDialogProvider />
-
-@* Needed for snackbars *@
 <MudSnackbarProvider />
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" />
 
-<MudLayout>
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Controle de Atividades</MudText>
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Edge="Edge.End">
-            <MudMenu FullWidth="true">
+    <MudLayout>
+        <MudAppBar Elevation="1">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                OnClick="@((e) => DrawerToggle())" />
+            <MudText Typo="Typo.h5" Class="ml-3">Controle de Atividades</MudText>
+            @* <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Edge="Edge.End"> *@
+            <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Theme" />
+            <MudMenu>
                 <ActivatorContent>
-                @* <MudChip Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Primary" /> *@
-                <MudAvatar Color="Color.Tertiary">V</MudAvatar>
+                    <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Edge="Edge.False" />
                 </ActivatorContent>
                 <ChildContent>
                     <MudMenuItem>Profile</MudMenuItem>
-                    <MudMenuItem>Theme</MudMenuItem>
                     <MudMenuItem>Usage</MudMenuItem>
                     <MudMenuItem>Sign Out</MudMenuItem>
                 </ChildContent>
             </MudMenu>
-        </MudIconButton>
-    </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu />
-    </MudDrawer>
-    <MudMainContent Class="mt-16 pa-4">
-        @Body
-    </MudMainContent>
-</MudLayout>
+            @* </MudIconButton> *@
+        </MudAppBar>
+        <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <NavMenu />
+        </MudDrawer>
+        <MudMainContent Class="mt-16 pa-4">
+            @Body
+        </MudMainContent>
+    </MudLayout>
+
 
 @code {
     private bool _drawerOpen = true;
+    private bool _isDarkMode = true;
+    private MudTheme currentTheme = default!;
+
+    [Inject]
+    private ThemeService ThemeService { get; set; } = default!;
 
     private void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private void ToggleTheme()
+    {
+        _isDarkMode = !_isDarkMode;
+        currentTheme = _isDarkMode ? ThemeService.DarkTheme : ThemeService.LightTheme;
+    }
+
+    protected override void OnInitialized()
+    {
+        currentTheme = ThemeService.DarkTheme;
+        _isDarkMode = true;
     }
 }
