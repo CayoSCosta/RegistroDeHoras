@@ -11,7 +11,7 @@
                 OnClick="@((e) => DrawerToggle())" />
             <MudText Typo="Typo.h5" Class="ml-3">Controle de Atividades</MudText>
             @* <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Edge="Edge.End"> *@
-            <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Theme" />
+                <MudSpacer />
             <MudMenu>
                 <ActivatorContent>
                     <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Edge="Edge.False" />
@@ -23,6 +23,9 @@
                 </ChildContent>
             </MudMenu>
             @* </MudIconButton> *@
+            <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Theme" />
+         @* <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Sharp.DarkMode)" Color="Color.Inherit" OnClick="ToggleTheme" /> *@
+            <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.Brightness7 : Icons.Material.Filled.Brightness4)" Style="color: black;" OnClick="ToggleTheme" />
         </MudAppBar>
         <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
             <NavMenu />
