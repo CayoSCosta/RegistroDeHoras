@@ -21,8 +21,15 @@ public class Program
         // });
 
         // Configure SQLite DbContext
+        //builder.Services.AddDbContext<AppDbContext>(options =>
+        //    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
         builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+        Console.WriteLine($"A connection string é: \n{conn}");
+
 
         builder.Services.AddControllers();
 

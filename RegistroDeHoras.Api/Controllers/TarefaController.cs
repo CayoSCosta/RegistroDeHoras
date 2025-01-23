@@ -53,7 +53,7 @@ public class TarefaController : ControllerBase
             Titulo = titulo,
             Cliente = cliente,
             Descricao = descricao,
-            NumeroAtividade = numeroAtividade,
+            NumeroTarefa = numeroAtividade,
             Inicio = DateTime.Now,
         };
 

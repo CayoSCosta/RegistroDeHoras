@@ -1,13 +1,13 @@
 ﻿<MudPaper Width="250px" Elevation="0" Class="py-3">
     <MudNavMenu Color="Color.Info">
-        <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Home</MudNavLink>
-        <MudNavLink Href="/registro" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Storage">Registrar</MudNavLink>
-        <MudNavLink Href="/counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Storage">Counter</MudNavLink>
-        <MudNavLink Href="/weather">Weather</MudNavLink>
-        <MudNavGroup Title="Settings" Expanded="true">
-            <MudNavLink Href="/users">Users</MudNavLink>
-            <MudNavLink Href="/security">Security</MudNavLink>
+        <MudNavLink Href="/" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Dashboard" title="Home">Home</MudNavLink>
+        <MudNavLink Href="/registro" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.MoreTime" title="Registrar">Registrar</MudNavLink>
+        <MudNavLink Href="/counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PlusOne" title="Counter">Counter</MudNavLink>
+        <MudNavLink Href="/weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AcUnit" title="Weather">Weather</MudNavLink>
+        <MudNavGroup Title="Settings" Icon="@Icons.Material.Filled.Settings" Expanded="true">
+            <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PeopleAlt" title="Users">Users</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Security" title="Security">Security</MudNavLink>
         </MudNavGroup>
-        <MudNavLink Href="/about">About</MudNavLink>
+        <MudNavLink Href="/about" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Info" title="About">About</MudNavLink>
     </MudNavMenu>
 </MudPaper>
