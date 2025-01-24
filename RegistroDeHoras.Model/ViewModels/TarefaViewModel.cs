@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RegistroDeHoras.Model.ViewModels;
 
-public class TarefaViewModels
+public class TarefaViewModel
 {
     public DateTime Inicio { get; set; }
     public DateTime Termino { get; set; }

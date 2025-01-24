@@ -1,7 +1,51 @@
 ﻿@page "/"
+@inject ITarefaServices TarefaServices
 
-<PageTitle>Home</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <MudPaper Elevation="3" Class="p-4">
+        <MudText Typo="Typo.h4" GutterBottom="true">Lista de Tarefas</MudText>
 
-<h1>Hello, world!</h1>
+        @if (tarefas == null)
+        {
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText Typo="Typo.subtitle2" Class="mt-2">Carregando tarefas...</MudText>
+        }
+        else if (tarefas.Count() == 0)
+        {
+            <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Nenhuma tarefa encontrada.</MudText>
+        }
+        else
+        {
+            <MudList T="string">
+                @foreach (var tarefa in tarefas)
+                {
+                    if(tarefa.StatusDaTarefa == "Encerrada")
+                    {
+                        <MudIcon Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle" />
+                    }
+                    else
+                    {
+                        <MudIcon Color="Color.Warning" Icon="@Icons.Material.Filled.RadioButtonUnchecked" />
+                    }
+                    <MudText Typo="Typo.body1">@tarefa.NumeroAtividade</MudText>
+                }
+            </MudList>
+        }
+    </MudPaper>
+</MudContainer>
 
-Welcome to your new app.
+@code {
+    private List<TarefaViewModel>? tarefas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            tarefas = await TarefaServices.ObterTodosTarefasAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Erro ao carregar tarefas: {ex.Message}");
+        }
+    }
+}

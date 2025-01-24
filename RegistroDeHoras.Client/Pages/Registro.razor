@@ -3,33 +3,33 @@
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
     <MudCard Elevation="4" Class="p-4">
-        <MudText Typo="Typo.h5" Class="mb-4">tarefa</MudText>
+        <MudText Typo="Typo.h5" Class="mb-4">Nova Tarefa</MudText>
         <EditForm Model="@tarefa" OnValidSubmit="Enviartarefa">
             <MudGrid Spacing="2">
                 <!-- Campo Número da tarefa -->
-                <MudItem xs="12" md="6">
+                <MudItem xs="12" md="12">
                     <MudTextField Label="Número da tarefa" Variant="Variant.Outlined"
-                        @bind-Value="tarefa.NumeroAtividade" Required="true"
-                        ErrorText="@ValidationMessage(nameof(tarefa.NumeroAtividade))" />
+                    @bind-Value="tarefa.NumeroAtividade" Required="true"
+                    ErrorText="@ValidationMessage(nameof(tarefa.NumeroAtividade))" />
                 </MudItem>
 
                 <!-- Campo Cliente -->
-                <MudItem xs="12" md="6">
+                <MudItem xs="12" md="12">
                     <MudTextField Label="Cliente" Variant="Variant.Outlined" @bind-Value="tarefa.Cliente"
-                        Required="true" ErrorText="@ValidationMessage(nameof(tarefa.Cliente))" />
+                    Required="true" ErrorText="@ValidationMessage(nameof(tarefa.Cliente))" />
                 </MudItem>
 
                 <!-- Campo Título -->
                 <MudItem xs="12">
                     <MudTextField Label="Título" Variant="Variant.Outlined" @bind-Value="tarefa.Titulo"
-                        Required="true" ErrorText="@ValidationMessage(nameof(tarefa.Titulo))" />
+                    Required="true" ErrorText="@ValidationMessage(nameof(tarefa.Titulo))" />
                 </MudItem>
 
                 <!-- Campo Descrição -->
                 <MudItem xs="12">
                     <MudTextField Label="Descrição do Problema" Variant="Variant.Outlined" Lines="5"
-                        @bind-Value="tarefa.Descricao" Required="true"
-                        ErrorText="@ValidationMessage(nameof(tarefa.Descricao))" />
+                    @bind-Value="tarefa.Descricao" Required="true"
+                    ErrorText="@ValidationMessage(nameof(tarefa.Descricao))" />
                 </MudItem>
 
                 <!-- Botões -->
@@ -44,10 +44,11 @@
 </MudContainer>
 
 @code {
-    private TarefaViewModels tarefa = new();
+    private TarefaViewModel tarefa = new();
 
     private async Task Enviartarefa()
     {
+        Console.WriteLine("Passou no enviar tarefa");
         try
         {
             if (!string.IsNullOrEmpty(tarefa.NumeroAtividade) && !string.IsNullOrEmpty(tarefa.Cliente) && 

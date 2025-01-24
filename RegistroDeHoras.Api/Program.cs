@@ -34,6 +34,8 @@ public class Program
         builder.Services.AddControllers();
 
         builder.Services.AddScoped<ITarefaServices, TarefaServices>();
+        builder.Services.AddAutoMapper(typeof(Program));
+
 
         var app = builder.Build();
 

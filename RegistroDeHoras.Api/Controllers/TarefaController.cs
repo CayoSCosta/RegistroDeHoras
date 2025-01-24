@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RegistroDeHoras.Api;
 using RegistroDeHoras.Api.Services;
 using RegistroDeHoras.Model;
+using RegistroDeHoras.Model.ViewModels;
 
 namespace TarefaDeHoras.Api.Controllers;
 
@@ -121,3 +122,31 @@ public class TarefaController : ControllerBase
     }
 }
 
+//Exemplo de conversão com automapper de viewmodel para entidade
+//[HttpPost]
+//    public async Task<IActionResult> CriarTarefa([FromBody] TarefaViewModel viewModel)
+//    {
+//        if (!ModelState.IsValid)
+//            return BadRequest(ModelState);
+
+//        // Fazendo o mapeamento da ViewModel para a Entidade
+//        var tarefa = _mapper.Map<Tarefa>(viewModel);
+
+//        _context.Tarefas.Add(tarefa);
+//        await _context.SaveChangesAsync();
+
+//        return Ok(tarefa);
+//    }
+
+
+//Exemplo com listas
+//[HttpGet]
+//    public async Task<ActionResult<IEnumerable<TarefaViewModel>>> ObterTodasTarefas()
+//    {
+//        var tarefas = await _context.Tarefas.ToListAsync();
+
+//        // Mapeia a lista de Entidades para ViewModels
+//        var viewModels = _mapper.Map<List<TarefaViewModel>>(tarefas);
+
+//        return Ok(viewModels);
+//    }
