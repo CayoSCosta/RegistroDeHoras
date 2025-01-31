@@ -62,4 +62,7 @@
   <ItemGroup>
     <Build Include="RegistroDeHoras\Tables\Tarefas.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="RegistroDeHoras.sql.refactorlog" />
+  </ItemGroup>
 </Project>

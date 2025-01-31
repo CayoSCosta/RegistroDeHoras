@@ -6,7 +6,7 @@
 	[Reinicio] [datetime2](7) NOT NULL,
 	[HorasUtilizadas] [time](7) NOT NULL,
 	[HorasDePausa] [time](7) NOT NULL,
-	[NumeroTarefa] [nvarchar](max) NULL,
+	[NumeroAtividade] [nvarchar](max) NULL,
 	[Titulo] [nvarchar](max) NULL,
 	[Cliente] [nvarchar](max) NULL,
 	[Descricao] [nvarchar](max) NULL,

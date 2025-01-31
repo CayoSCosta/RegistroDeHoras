@@ -5,7 +5,7 @@ namespace RegistroDeHoras.Client.Services;
 
     public interface ITarefaServices
     {
-        Task<List<TarefaViewModel>> ObterTodosTarefasAsync();
+        Task<List<TarefaViewModel>> ObterTodasTarefasAsync();
         Task<TarefaViewModel> ObterTarefaPorIdAsync(Guid id);
         Task<TarefaViewModel> CriarTarefaAsync(string titulo, string cliente, string descricao, string numeroAtividade);
         Task<TarefaViewModel> PararTarefaAsync(Guid id, string status);

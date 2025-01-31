@@ -55,7 +55,7 @@ namespace RegistroDeHoras.Api.Migrations
                     b.Property<DateTime>("Inicio")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("NumeroTarefa")
+                    b.Property<string>("NumeroAtividade")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Pausa")

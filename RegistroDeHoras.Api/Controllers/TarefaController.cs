@@ -22,13 +22,35 @@ public class TarefaController : ControllerBase
         _tarefaServices = tarefaServices;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Tarefa>>> ObterTodosTarefasAsync()
+    [HttpGet("TodasTarefas")]
+    public async Task<ActionResult<List<TarefaViewModel>>> ObterTodosTarefasAsync()
     {
         if (_context.Tarefas == null)
             return NotFound("Nenhuma tarefa encontrada");
 
-        return await _context.Tarefas.ToListAsync();
+        var listaDetarefas =  await _context.Tarefas.ToListAsync();
+        List<TarefaViewModel> listaDeTarefasViewModel = new();
+        foreach (var tarefa in listaDetarefas)
+        {
+            TarefaViewModel tarefaViewModel = new()
+            {
+                Inicio = tarefa.Inicio,
+                Termino = tarefa.Termino,
+                Pausa = tarefa.Pausa,
+                Reinicio = tarefa.Reinicio,
+                HorasUtilizadas = tarefa.HorasUtilizadas,
+                HorasDePausa = tarefa.HorasDePausa,
+                NumeroAtividade = tarefa.NumeroAtividade,
+                Titulo = tarefa.Titulo,
+                Cliente = tarefa.Cliente,
+                Descricao = tarefa.Descricao,
+                StatusDaTarefa = tarefa.StatusDaTarefa,
+            };
+
+            listaDeTarefasViewModel.Add(tarefaViewModel);
+        }
+
+        return Ok(listaDeTarefasViewModel);
     }
 
     [HttpGet("{id:guid}")]
@@ -54,7 +76,7 @@ public class TarefaController : ControllerBase
             Titulo = titulo,
             Cliente = cliente,
             Descricao = descricao,
-            NumeroTarefa = numeroAtividade,
+            NumeroAtividade = numeroAtividade,
             Inicio = DateTime.Now,
         };
 

@@ -28,7 +28,6 @@ public class Program
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         var conn = builder.Configuration.GetConnectionString("DefaultConnection");
-        Console.WriteLine($"A connection string é: \n{conn}");
 
 
         builder.Services.AddControllers();
@@ -36,6 +35,16 @@ public class Program
         builder.Services.AddScoped<ITarefaServices, TarefaServices>();
         builder.Services.AddAutoMapper(typeof(Program));
 
+        // Adicionando CORS
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("RegistroDeHoras.Client", policy =>
+            {
+                policy.WithOrigins("https://localhost:7224") // URL do seu Blazor WebAssembly
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            });
+        });
 
         var app = builder.Build();
 
@@ -50,7 +59,7 @@ public class Program
         }
 
         // Configure the HTTP request pipeline.
-
+        app.UseCors("RegistroDeHoras.Client");
         app.UseHttpsRedirection();
 
         app.UseAuthorization();

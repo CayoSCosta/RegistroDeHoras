@@ -1,51 +1,98 @@
 ﻿@page "/"
 @inject ITarefaServices TarefaServices
+@inject IDialogService DialogService
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
-    <MudPaper Elevation="3" Class="p-4">
-        <MudText Typo="Typo.h4" GutterBottom="true">Lista de Tarefas</MudText>
+<MudTable T="TarefaViewModel" Items="@tarefas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info" OnRowClick="SelecionarTarefaEvent">
+    <HeaderContent>
+        <MudTh>Número da Tarefa</MudTh>
+        <MudTh>Cliente</MudTh>
+        <MudTh>Data de Abertura</MudTh>
+        <MudTh>Status da Atividade</MudTh>
+    </HeaderContent>
 
-        @if (tarefas == null)
+    <RowTemplate Context="tarefa">
+        <MudTd DataLabel="Nr">@tarefa.NumeroAtividade</MudTd>
+        <MudTd DataLabel="Cliente">@tarefa.Cliente</MudTd>
+        <MudTd DataLabel="Data da abertura">@tarefa.Inicio.ToString("dd/MM/yyyy")</MudTd>
+        <MudTd DataLabel="Status">
+            <MudChip T="string" Color="GetStatusColor(aberto)">Aberto</MudChip>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudDialog @bind-IsOpen="modalAberto">
+    <TitleContent>
+        <MudText>Detalhes da Tarefa</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (tarefaSelecionada != null)
         {
-            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
-            <MudText Typo="Typo.subtitle2" Class="mt-2">Carregando tarefas...</MudText>
+            <MudForm>
+                <MudTextField Label="Número da Atividade" Value="@tarefaSelecionada.NumeroAtividade" ReadOnly="true" />
+                <MudTextField Label="Título" Value="@tarefaSelecionada.Titulo" ReadOnly="true" />
+                <MudTextField Label="Cliente" Value="@tarefaSelecionada.Cliente" ReadOnly="true" />
+                <MudTextField Label="Descrição" Value="@tarefaSelecionada.Descricao" ReadOnly="true" />
+                <MudTextField Label="Data de Início" Value="@tarefaSelecionada.Inicio.ToString("dd/MM/yyyy HH:mm")" ReadOnly="true" />
+                <MudTextField Label="Data de Término" Value="@tarefaSelecionada.Termino.ToString("dd/MM/yyyy HH:mm")" ReadOnly="true" />
+                <MudTextField Label="Pausa" Value="@tarefaSelecionada.Pausa.ToString("dd/MM/yyyy HH:mm")" ReadOnly="true" />
+                <MudTextField Label="Reinício" Value="@tarefaSelecionada.Reinicio.ToString("dd/MM/yyyy HH:mm")" ReadOnly="true" />
+                <MudTextField Label="Horas Utilizadas" Value="@tarefaSelecionada.HorasUtilizadas.ToString()" ReadOnly="true" />
+                <MudTextField Label="Horas de Pausa" Value="@tarefaSelecionada.HorasDePausa.ToString()" ReadOnly="true" />
+            </MudForm>
         }
-        else if (tarefas.Count() == 0)
-        {
-            <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Nenhuma tarefa encontrada.</MudText>
-        }
-        else
-        {
-            <MudList T="string">
-                @foreach (var tarefa in tarefas)
-                {
-                    if(tarefa.StatusDaTarefa == "Encerrada")
-                    {
-                        <MudIcon Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle" />
-                    }
-                    else
-                    {
-                        <MudIcon Color="Color.Warning" Icon="@Icons.Material.Filled.RadioButtonUnchecked" />
-                    }
-                    <MudText Typo="Typo.body1">@tarefa.NumeroAtividade</MudText>
-                }
-            </MudList>
-        }
-    </MudPaper>
-</MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => FecharModal())" Color="Color.Primary">Fechar</MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
-    private List<TarefaViewModel>? tarefas;
+    private IEnumerable<TarefaViewModel>? tarefas;
+    private bool _loading = true;
+    private string aberto = "Aberto";
+
+    private TarefaViewModel? tarefaSelecionada;
+    private bool modalAberto;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            tarefas = await TarefaServices.ObterTodosTarefasAsync();
+            tarefas = await TarefaServices.ObterTodasTarefasAsync();
+
+            if (tarefas == null)
+            {
+                tarefas = new List<TarefaViewModel>();
+                _loading = false;
+            }
+
+            _loading = false;
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Erro ao carregar tarefas: {ex.Message}");
         }
+    }
+
+    private void SelecionarTarefaEvent(TableRowClickEventArgs<TarefaViewModel> args)
+    {
+        tarefaSelecionada = args.Item;
+        modalAberto = true;
+    }
+
+    private void FecharModal()
+    {
+        modalAberto = false;
+    }
+
+    private Color GetStatusColor(string? status)
+    {
+        return status switch
+        {
+            "Aberto" => Color.Primary,
+            "Em Andamento" => Color.Warning,
+            "Concluído" => Color.Success,
+            _ => Color.Default
+        };
     }
 }
