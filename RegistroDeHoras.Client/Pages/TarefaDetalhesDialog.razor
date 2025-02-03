@@ -1,0 +1,60 @@
+﻿
+<MudDialog Style="Width:500px;">
+    <TitleContent>
+        <MudText>Detalhes da Tarefa</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (tarefaSelecionada != null)
+        {
+
+            <MudText>Ticket: @tarefaSelecionada.NumeroAtividade"</MudText>
+            <MudText>Cliente: @tarefaSelecionada.Cliente"</MudText>
+            <MudText>Título: @tarefaSelecionada.Titulo"</MudText>
+            <MudText>Data de Início: @tarefaSelecionada.Inicio"</MudText>
+
+            @if (tarefaSelecionada.Pausa != DateTime.MinValue)
+            {
+                <MudText>Pausa: @tarefaSelecionada.Pausa.ToString("dd/MM/yyyy HH:mm")</MudText>
+            }
+            @if (tarefaSelecionada.Reinicio != DateTime.MinValue)
+            {
+                <MudText>Reinício: @tarefaSelecionada.Reinicio.ToString("dd/MM/yyyy HH:mm")</MudText>
+            }
+            @if (tarefaSelecionada.Termino != DateTime.MinValue)
+            {
+                <MudText>Data de Término: @tarefaSelecionada.Termino.ToString("dd/MM/yyyy HH:mm")</MudText>
+            }
+            @if (tarefaSelecionada.HorasUtilizadas != TimeSpan.Zero)
+            {
+                <MudText>Horas Utilizadas: @tarefaSelecionada.HorasUtilizadas.ToString()</MudText>
+            }
+            @if (tarefaSelecionada.HorasDePausa != TimeSpan.Zero)
+            {
+                <MudText>Horas de Pausa: @tarefaSelecionada.HorasDePausa.ToString()</MudText>
+            }
+
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Submit">Pausar</MudButton>
+        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Submit">Encerrar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public TarefaViewModel tarefaSelecionada { get; set; } = default!;
+
+    private void FecharModal()
+    {
+        MudDialog.Close();
+    }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+    private void Cancel() => MudDialog.Cancel();
+}

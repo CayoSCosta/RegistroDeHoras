@@ -1,8 +1,9 @@
 ﻿@page "/"
+@using MudBlazor
 @inject ITarefaServices TarefaServices
 @inject IDialogService DialogService
 
-<MudTable T="TarefaViewModel" Items="@tarefas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info" OnRowClick="SelecionarTarefaEvent">
+<MudTable T="TarefaViewModel" Items="@tarefas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes">
     <HeaderContent>
         <MudTh>Número da Tarefa</MudTh>
         <MudTh>Cliente</MudTh>
@@ -20,39 +21,14 @@
     </RowTemplate>
 </MudTable>
 
-<MudDialog @bind-IsOpen="modalAberto">
-    <TitleContent>
-        <MudText>Detalhes da Tarefa</MudText>
-    </TitleContent>
-    <DialogContent>
-        @if (tarefaSelecionada != null)
-        {
-            <MudForm>
-                <MudTextField Label="Número da Atividade" Value="@tarefaSelecionada.NumeroAtividade" ReadOnly="true" />
-                <MudTextField Label="Título" Value="@tarefaSelecionada.Titulo" ReadOnly="true" />
-                <MudTextField Label="Cliente" Value="@tarefaSelecionada.Cliente" ReadOnly="true" />
-                <MudTextField Label="Descrição" Value="@tarefaSelecionada.Descricao" ReadOnly="true" />
-                <MudTextField Label="Data de Início" Value="@tarefaSelecionada.Inicio.ToString("dd/MM/yyyy HH:mm")" ReadOnly="true" />
-                <MudTextField Label="Data de Término" Value="@tarefaSelecionada.Termino.ToString("dd/MM/yyyy HH:mm")" ReadOnly="true" />
-                <MudTextField Label="Pausa" Value="@tarefaSelecionada.Pausa.ToString("dd/MM/yyyy HH:mm")" ReadOnly="true" />
-                <MudTextField Label="Reinício" Value="@tarefaSelecionada.Reinicio.ToString("dd/MM/yyyy HH:mm")" ReadOnly="true" />
-                <MudTextField Label="Horas Utilizadas" Value="@tarefaSelecionada.HorasUtilizadas.ToString()" ReadOnly="true" />
-                <MudTextField Label="Horas de Pausa" Value="@tarefaSelecionada.HorasDePausa.ToString()" ReadOnly="true" />
-            </MudForm>
-        }
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="@(() => FecharModal())" Color="Color.Primary">Fechar</MudButton>
-    </DialogActions>
-</MudDialog>
-
 @code {
     private IEnumerable<TarefaViewModel>? tarefas;
     private bool _loading = true;
     private string aberto = "Aberto";
 
     private TarefaViewModel? tarefaSelecionada;
-    private bool modalAberto;
+    private bool modalAberto = false;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -74,15 +50,19 @@
         }
     }
 
-    private void SelecionarTarefaEvent(TableRowClickEventArgs<TarefaViewModel> args)
+    private async Task TarefaDetalhes(TableRowClickEventArgs<TarefaViewModel> args)
     {
-        tarefaSelecionada = args.Item;
-        modalAberto = true;
-    }
+        var tarefa = args.Item; // Aqui, você pega a tarefa clicada
 
-    private void FecharModal()
-    {
-        modalAberto = false;
+        var parameters = new DialogParameters
+        {
+            { "tarefaSelecionada", tarefa }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = DialogService.Show<TarefaDetalhesDialog>("Detalhes da Tarefa", parameters, options);
+        await dialog.Result;
     }
 
     private Color GetStatusColor(string? status)
@@ -96,3 +76,4 @@
         };
     }
 }
+
