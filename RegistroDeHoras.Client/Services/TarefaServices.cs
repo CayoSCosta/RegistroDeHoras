@@ -28,8 +28,14 @@ public class TarefaService : ITarefaServices
 
     public async Task<TarefaViewModel> CriarTarefaAsync(string titulo, string cliente, string descricao, string numeroAtividade)
     {
-        var httpClient = _httpClientFactory.CreateClient("RegistroDehoras.Api");
-        var response = await httpClient.PostAsJsonAsync("api/Tarefa/Nova", new { titulo, cliente, descricao, numeroAtividade });
+        var httpClient = _httpClientFactory.CreateClient("RegistroDeHoras.Api");
+        var response = await httpClient.PostAsJsonAsync("api/Tarefa/Nova", new TarefaViewModel
+        {
+            Titulo = titulo,
+            Cliente = cliente,
+            Descricao = descricao,
+            NumeroAtividade = numeroAtividade
+        });
 
         if (response.IsSuccessStatusCode)
         {
@@ -39,6 +45,7 @@ public class TarefaService : ITarefaServices
 
         throw new ApplicationException("Erro ao criar a tarefa.");
     }
+
 
     public async Task<TarefaViewModel> PararTarefaAsync(Guid id, string status)
     {

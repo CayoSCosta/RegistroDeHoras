@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RegistroDeHoras.Api;
@@ -14,12 +15,14 @@ public class TarefaController : ControllerBase
     private readonly ILogger<TarefaController>? _logger;
     private readonly AppDbContext _context;
     private readonly ITarefaServices _tarefaServices;
+    private readonly IMapper _mapper;
 
-    public TarefaController(ILogger<TarefaController>? logger, AppDbContext context, ITarefaServices tarefaServices)
+    public TarefaController(ILogger<TarefaController>? logger, AppDbContext context, ITarefaServices tarefaServices, IMapper mapper)
     {
         _logger = logger;
         _context = context;
         _tarefaServices = tarefaServices;
+        _mapper = mapper;
     }
 
     [HttpGet("TodasTarefas")]
@@ -65,28 +68,31 @@ public class TarefaController : ControllerBase
     }
 
     [HttpPost("Nova")]
-    [ProducesResponseType(typeof(Tarefa), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(TarefaViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> CriarTarefa(string titulo, string cliente, string descricao, string numeroAtividade)
+    public async Task<ActionResult> CriarTarefa([FromBody] TarefaViewModel tarefaVM)
     {
-        _logger?.LogInformation("Iniciando criação de uma nova tarefa com Titulo: {Titulo}", titulo);
+        _logger?.LogInformation("Iniciando criação de uma nova tarefa com Titulo: {Titulo}", tarefaVM.Titulo);
 
         var tarefa = new Tarefa
         {
-            Titulo = titulo,
-            Cliente = cliente,
-            Descricao = descricao,
-            NumeroAtividade = numeroAtividade,
+            Titulo = tarefaVM.Titulo,
+            Cliente = tarefaVM.Cliente,
+            Descricao = tarefaVM.Descricao,
+            NumeroAtividade = tarefaVM.NumeroAtividade,
             Inicio = DateTime.Now,
         };
 
         await _context.Tarefas.AddAsync(tarefa);
         await _context.SaveChangesAsync();
 
-        // Verificar se a rota está funcionando corretamente
-        //return CreatedAtAction(nameof(ObterTarefaPorIdAsync), new { id = tarefa.Id }, tarefa);
-        return Ok(tarefa);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        // Não precisaria mapear, porque já está no formato de ViewModel
+        return Ok(tarefaVM);
     }
+
 
     [HttpPost("Parar/{id}")]
     public async Task<IActionResult> PararTarefa(Guid id, string status)

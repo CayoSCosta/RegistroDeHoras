@@ -5,6 +5,8 @@
     <MudCard Elevation="4" Class="p-4">
         <MudText Typo="Typo.h5" Class="mb-4">Nova Tarefa</MudText>
         <EditForm Model="@tarefa" OnValidSubmit="Enviartarefa">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <MudGrid Spacing="2">
                 <!-- Campo Número da tarefa -->
                 <MudItem xs="12" md="12">
@@ -34,7 +36,7 @@
 
                 <!-- Botões -->
                 <MudItem xs="12" Class="d-flex justify-end mt-4">
-                    <MudButton Variant="Variant.Filled" Color="Color.Success" Type="Submit">
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" ButtonType="ButtonType.Submit">
                         Iniciar tarefa
                     </MudButton>
                 </MudItem>

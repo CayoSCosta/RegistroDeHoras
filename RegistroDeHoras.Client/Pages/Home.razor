@@ -19,6 +19,11 @@
             <MudChip T="string" Color="GetStatusColor(aberto)">Aberto</MudChip>
         </MudTd>
     </RowTemplate>
+    <NoRecordsContent>
+        <MudText class="text-center" Color="Color.Secondary">
+            Nenhuma tarefa encontrada.
+        </MudText>
+    </NoRecordsContent>
 </MudTable>
 
 @code {
