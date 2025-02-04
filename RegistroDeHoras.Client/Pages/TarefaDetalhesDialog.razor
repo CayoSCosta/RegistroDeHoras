@@ -1,4 +1,7 @@
-﻿
+﻿@inject ITarefaServices TarefaServices;
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
 <MudDialog Style="Width:500px;">
     <TitleContent>
         <MudText>Detalhes da Tarefa</MudText>
@@ -7,10 +10,11 @@
         @if (tarefaSelecionada != null)
         {
 
-            <MudText>Ticket: @tarefaSelecionada.NumeroAtividade"</MudText>
-            <MudText>Cliente: @tarefaSelecionada.Cliente"</MudText>
-            <MudText>Título: @tarefaSelecionada.Titulo"</MudText>
-            <MudText>Data de Início: @tarefaSelecionada.Inicio"</MudText>
+            <MudText>Ticket: @tarefaSelecionada.NumeroAtividade</MudText>
+            <MudText>Cliente: @tarefaSelecionada.Cliente</MudText>
+            <MudText>Título: @tarefaSelecionada.Titulo</MudText>
+            <MudText>Data de Início: @tarefaSelecionada.Inicio</MudText>
+            <MudText>Status: @tarefaSelecionada.StatusDaTarefa</MudText>
 
             @if (tarefaSelecionada.Pausa != DateTime.MinValue)
             {
@@ -36,9 +40,13 @@
         }
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Submit">Pausar</MudButton>
-        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Submit">Encerrar</MudButton>
+        @if (tarefaSelecionada.StatusDaTarefa == "Em andamento"){
+            <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="Pausar">Parar</MudButton>
+        }
+        else{
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Pausar">Reiniciar</MudButton>
+        }        
+        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Encerrar">Encerrar</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -49,12 +57,47 @@
     [Parameter]
     public TarefaViewModel tarefaSelecionada { get; set; } = default!;
 
+    private async Task Pausar()
+    {
+        if (tarefaSelecionada != null)
+        {
+            try
+            {
+                var tarefaAtualizada = await TarefaServices.PararTarefaAsync(tarefaSelecionada.NumeroAtividade);
+
+                tarefaSelecionada = tarefaAtualizada;
+                Snackbar.Add($"Tarefa {tarefaSelecionada.NumeroAtividade} pausada com sucesso!", Severity.Warning);
+                FecharModal();
+                Navigation.NavigateTo(Navigation.Uri);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Erro ao pausar a tarefa: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private async Task Encerrar()
+    {
+        if (tarefaSelecionada != null)
+        {
+            try
+            {
+                var tarefaFinalizada = await TarefaServices.FinalizarTarefaAsync(tarefaSelecionada.NumeroAtividade);
+                tarefaSelecionada = tarefaFinalizada;
+                Snackbar.Add($"Tarefa {tarefaSelecionada.NumeroAtividade} encerrada com sucesso!", Severity.Success);
+                FecharModal();
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Erro ao encerrar a tarefa: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
     private void FecharModal()
     {
         MudDialog.Close();
     }
-
-    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
-
-    private void Cancel() => MudDialog.Cancel();
 }

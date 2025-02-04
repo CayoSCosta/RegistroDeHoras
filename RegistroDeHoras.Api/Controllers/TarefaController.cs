@@ -80,6 +80,7 @@ public class TarefaController : ControllerBase
             Cliente = tarefaVM.Cliente,
             Descricao = tarefaVM.Descricao,
             NumeroAtividade = tarefaVM.NumeroAtividade,
+            StatusDaTarefa = "Em adamento",
             Inicio = DateTime.Now,
         };
 
@@ -94,15 +95,16 @@ public class TarefaController : ControllerBase
     }
 
 
-    [HttpPost("Parar/{id}")]
-    public async Task<IActionResult> PararTarefa(Guid id, string status)
+    [HttpPost("Parar")]
+    public async Task<IActionResult> PararTarefa([FromBody] string numeroDaTarefa)
     {
-        var tarefa = _context.Tarefas.Find(id);
+        var tarefa = await _context.Tarefas
+            .FirstOrDefaultAsync(t => t.NumeroAtividade == numeroDaTarefa);
 
         if (tarefa == null)
             return NotFound();
 
-        if (tarefa.StatusDaTarefa == "Em adamento")
+        if (tarefa.StatusDaTarefa == "Em andamento")
         {
             tarefa.Pausa = DateTime.Now;
             tarefa.HorasDePausa = tarefa.HorasDePausa + (tarefa.Pausa - tarefa.Inicio);
@@ -111,18 +113,19 @@ public class TarefaController : ControllerBase
         else if (tarefa.StatusDaTarefa == "Parada")
         {
             tarefa.Reinicio = DateTime.Now;
-            tarefa.StatusDaTarefa = "Em adamento";
+            tarefa.StatusDaTarefa = "Em andamento";
         }
         else
         {
             return BadRequest();
         }
 
-        await _context.Tarefas.AddAsync(tarefa);
         await _context.SaveChangesAsync();
 
         return Ok(tarefa);
     }
+
+
 
     [HttpPost("Finalizar/{id}")]
     public async Task<IActionResult> FinalizarTarefa(Guid id)

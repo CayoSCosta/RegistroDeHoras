@@ -1,5 +1,8 @@
 ﻿@page "/registro"
 @inject ITarefaServices TarefaServices;
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
     <MudCard Elevation="4" Class="p-4">
@@ -50,26 +53,30 @@
 
     private async Task Enviartarefa()
     {
-        Console.WriteLine("Passou no enviar tarefa");
         try
         {
-            if (!string.IsNullOrEmpty(tarefa.NumeroAtividade) && !string.IsNullOrEmpty(tarefa.Cliente) && 
-                                    !string.IsNullOrEmpty(tarefa.Titulo) && !string.IsNullOrEmpty(tarefa.Descricao))
+            if (!string.IsNullOrEmpty(tarefa.NumeroAtividade) && !string.IsNullOrEmpty(tarefa.Cliente) && !string.IsNullOrEmpty(tarefa.Titulo) && !string.IsNullOrEmpty(tarefa.Descricao))
             {
-                await TarefaServices.CriarTarefaAsync(tarefa.NumeroAtividade, tarefa.Cliente, tarefa.Titulo, tarefa.Descricao);
-                Console.WriteLine("tarefa iniciada com sucesso!");
+                var tarefaVm = await  TarefaServices.CriarTarefaAsync(tarefa.NumeroAtividade, tarefa.Cliente, tarefa.Titulo, tarefa.Descricao);
+
+                if (tarefaVm != null)
+                    Navigation.NavigateTo($"/?tarefa={tarefa.NumeroAtividade}");
+                else
+                    Snackbar.Add("Erro ao criar tarefa. Por favor consultar os logs", Severity.Error);
             }
             else
             {
                 Console.WriteLine("Erro: Todos os campos são obrigatórios.");
+                Snackbar.Add("Preencha todos os campos antes de iniciar a tarefa!", Severity.Error);
             }
-            Console.WriteLine("tarefa iniciada com sucesso!");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erro ao enviar: {ex.Message}");
+            Snackbar.Add("Erro ao criar a tarefa. Tente novamente!", Severity.Error);
         }
     }
+
 
     private string? ValidationMessage(string propertyName)
     {

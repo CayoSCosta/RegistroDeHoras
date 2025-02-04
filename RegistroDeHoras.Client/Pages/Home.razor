@@ -2,8 +2,17 @@
 @using MudBlazor
 @inject ITarefaServices TarefaServices
 @inject IDialogService DialogService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
 
-<MudTable T="TarefaViewModel" Items="@tarefas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes">
+
+<MudTable T="TarefaViewModel" Items="@tarefas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes"
+          Filter="new Func<TarefaViewModel,bool>(FilterFunc1)">
+    <ToolBarContent>
+        <MudText Typo="Typo.h2">Tarefas</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
     <HeaderContent>
         <MudTh>Número da Tarefa</MudTh>
         <MudTh>Cliente</MudTh>
@@ -16,9 +25,12 @@
         <MudTd DataLabel="Cliente">@tarefa.Cliente</MudTd>
         <MudTd DataLabel="Data da abertura">@tarefa.Inicio.ToString("dd/MM/yyyy")</MudTd>
         <MudTd DataLabel="Status">
-            <MudChip T="string" Color="GetStatusColor(aberto)">Aberto</MudChip>
+            <MudChip T="string" Color="GetStatusColor(tarefa.StatusDaTarefa)">@tarefa.StatusDaTarefa</MudChip>
         </MudTd>
     </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
     <NoRecordsContent>
         <MudText class="text-center" Color="Color.Secondary">
             Nenhuma tarefa encontrada.
@@ -30,9 +42,13 @@
     private IEnumerable<TarefaViewModel>? tarefas;
     private bool _loading = true;
     private string aberto = "Aberto";
+    private string searchString1 = "";
 
     private TarefaViewModel? tarefaSelecionada;
     private bool modalAberto = false;
+
+
+    private IEnumerable<TarefaViewModel> listaDeTarefas = new List<TarefaViewModel>();
 
 
     protected override async Task OnInitializedAsync()
@@ -40,11 +56,15 @@
         try
         {
             tarefas = await TarefaServices.ObterTodasTarefasAsync();
+            if (tarefas == null) tarefas = new List<TarefaViewModel>();
 
-            if (tarefas == null)
+            var uri = new Uri(Navigation.Uri);
+            var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var novaTarefa = queryParams["tarefa"];
+
+            if (!string.IsNullOrEmpty(novaTarefa))
             {
-                tarefas = new List<TarefaViewModel>();
-                _loading = false;
+                Snackbar.Add($"Tarefa {novaTarefa} criada com sucesso!", Severity.Success);
             }
 
             _loading = false;
@@ -75,10 +95,26 @@
         return status switch
         {
             "Aberto" => Color.Primary,
-            "Em Andamento" => Color.Warning,
+            "Parada" => Color.Warning,
+            "Em andamento" => Color.Tertiary,
             "Concluído" => Color.Success,
             _ => Color.Default
         };
+    }
+
+    private bool FilterFunc1(TarefaViewModel tarefa) => FilterFunc(tarefa, searchString1);
+
+    private bool FilterFunc(TarefaViewModel tarefa, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (tarefa.Cliente.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (tarefa.Titulo.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (tarefa.NumeroAtividade.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }
 

@@ -21,7 +21,7 @@ public class TarefaService : ITarefaServices
 
     public async Task<TarefaViewModel> ObterTarefaPorIdAsync(Guid id)
     {
-        var httpClient = _httpClientFactory.CreateClient("RegistroDehoras.Api");
+        var httpClient = _httpClientFactory.CreateClient("RegistroDeHoras.Api");
         var result = await httpClient.GetFromJsonAsync<TarefaViewModel>($"api/Tarefa/{id}");
         return result ?? new TarefaViewModel();
     }
@@ -46,11 +46,10 @@ public class TarefaService : ITarefaServices
         throw new ApplicationException("Erro ao criar a tarefa.");
     }
 
-
-    public async Task<TarefaViewModel> PararTarefaAsync(Guid id, string status)
+    public async Task<TarefaViewModel> PararTarefaAsync(string numeroDaTarefa)
     {
-        var httpClient = _httpClientFactory.CreateClient("RegistroDehoras.Api");
-        var response = await httpClient.PostAsJsonAsync($"api/Tarefa/Parar/{id}", new { status });
+        var httpClient = _httpClientFactory.CreateClient("RegistroDeHoras.Api");
+        var response = await httpClient.PostAsJsonAsync("api/Tarefa/Parar", numeroDaTarefa);
 
         if (response.IsSuccessStatusCode)
         {
@@ -58,13 +57,14 @@ public class TarefaService : ITarefaServices
             return result ?? new TarefaViewModel();
         }
 
-        throw new ApplicationException("Erro ao parar a tarefa.");
+        throw new ApplicationException($"Erro ao parar a tarefa. Código: {response.StatusCode}, Detalhes: {await response.Content.ReadAsStringAsync()}");
     }
 
-    public async Task<TarefaViewModel> FinalizarTarefaAsync(Guid id)
+
+    public async Task<TarefaViewModel> FinalizarTarefaAsync(string numeroDaTarefa)
     {
-        var httpClient = _httpClientFactory.CreateClient("RegistroDehoras.Api");
-        var response = await httpClient.PostAsync($"api/Tarefa/Finalizar/{id}", null);
+        var httpClient = _httpClientFactory.CreateClient("RegistroDeHoras.Api");
+        var response = await httpClient.PostAsync($"api/Tarefa/Finalizar/{numeroDaTarefa}", null);
 
         if (response.IsSuccessStatusCode)
         {
@@ -77,7 +77,7 @@ public class TarefaService : ITarefaServices
 
     public async Task<bool> DeletarTarefaAsync(Guid id)
     {
-        var httpClient = _httpClientFactory.CreateClient("RegistroDehoras.Api");
+        var httpClient = _httpClientFactory.CreateClient("RegistroDeHoras.Api");
         var response = await httpClient.DeleteAsync($"api/Tarefa/Deletar/{id}");
 
         return response.IsSuccessStatusCode;
