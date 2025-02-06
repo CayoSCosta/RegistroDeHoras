@@ -40,7 +40,7 @@ public class Program
         {
             options.AddPolicy("RegistroDeHoras.Client", policy =>
             {
-                 policy.WithOrigins("https://localhost:7224") 
+                policy.WithOrigins("https://localhost:7224") 
                 //policy.WithOrigins("http://localhost:5200") 
                       .AllowAnyMethod()
                       .AllowAnyHeader();

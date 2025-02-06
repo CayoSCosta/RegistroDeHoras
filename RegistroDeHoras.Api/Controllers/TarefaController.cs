@@ -28,32 +28,40 @@ public class TarefaController : ControllerBase
     [HttpGet("TodasTarefas")]
     public async Task<ActionResult<List<TarefaViewModel>>> ObterTodosTarefasAsync()
     {
-        if (_context.Tarefas == null)
-            return NotFound("Nenhuma tarefa encontrada");
-
-        var listaDetarefas =  await _context.Tarefas.ToListAsync();
-        List<TarefaViewModel> listaDeTarefasViewModel = new();
-        foreach (var tarefa in listaDetarefas)
+        try
         {
-            TarefaViewModel tarefaViewModel = new()
+            if (_context.Tarefas == null)
+                return NotFound("Nenhuma tarefa encontrada");
+
+            var listaDetarefas = await _context.Tarefas.ToListAsync();
+            List<TarefaViewModel> listaDeTarefasViewModel = new();
+            foreach (var tarefa in listaDetarefas)
             {
-                Inicio = tarefa.Inicio,
-                Termino = tarefa.Termino,
-                Pausa = tarefa.Pausa,
-                Reinicio = tarefa.Reinicio,
-                HorasUtilizadas = tarefa.HorasUtilizadas,
-                HorasDePausa = tarefa.HorasDePausa,
-                NumeroAtividade = tarefa.NumeroAtividade,
-                Titulo = tarefa.Titulo,
-                Cliente = tarefa.Cliente,
-                Descricao = tarefa.Descricao,
-                StatusDaTarefa = tarefa.StatusDaTarefa,
-            };
+                TarefaViewModel tarefaViewModel = new()
+                {
+                    Inicio = tarefa.Inicio,
+                    Termino = tarefa.Termino,
+                    Pausa = tarefa.Pausa,
+                    Reinicio = tarefa.Reinicio,
+                    HorasUtilizadas = tarefa.HorasUtilizadas,
+                    HorasDePausa = tarefa.HorasDePausa,
+                    NumeroAtividade = tarefa.NumeroAtividade,
+                    Titulo = tarefa.Titulo,
+                    Cliente = tarefa.Cliente,
+                    Descricao = tarefa.Descricao,
+                    StatusDaTarefa = tarefa.StatusDaTarefa,
+                };
 
-            listaDeTarefasViewModel.Add(tarefaViewModel);
+                listaDeTarefasViewModel.Add(tarefaViewModel);
+            }
+
+            return Ok(listaDeTarefasViewModel);
         }
+        catch (Exception)
+        {
 
-        return Ok(listaDeTarefasViewModel);
+            throw;
+        }
     }
 
     [HttpGet("{id:guid}")]
@@ -90,10 +98,8 @@ public class TarefaController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        // Não precisaria mapear, porque já está no formato de ViewModel
         return Ok(tarefaVM);
     }
-
 
     [HttpPost("Parar")]
     public async Task<IActionResult> PararTarefa([FromBody] string numeroDaTarefa)
@@ -107,7 +113,6 @@ public class TarefaController : ControllerBase
         if (tarefa.StatusDaTarefa == "Em andamento")
         {
             tarefa.Pausa = DateTime.Now;
-            tarefa.HorasDePausa = tarefa.HorasDePausa + (tarefa.Pausa - tarefa.Inicio);
             tarefa.StatusDaTarefa = "Parada";
         }
         else if (tarefa.StatusDaTarefa == "Parada")
@@ -120,30 +125,39 @@ public class TarefaController : ControllerBase
             return BadRequest();
         }
 
+        _context.Update(tarefa);
         await _context.SaveChangesAsync();
 
         return Ok(tarefa);
     }
 
-
-
-    [HttpPost("Finalizar/{id}")]
-    public async Task<IActionResult> FinalizarTarefa(Guid id)
+    [HttpPost("Finalizar")]
+    public async Task<IActionResult> FinalizarTarefa([FromBody] string numeroDaTarefa)
     {
-        var tarefa = _context.Tarefas.Find(id);
+        try
+        {
+            var tarefa = await _context.Tarefas
+                .FirstOrDefaultAsync(t => t.NumeroAtividade == numeroDaTarefa);
 
-        if (tarefa == null)
-            return NotFound();
+            if (tarefa == null)
+                return NotFound();
 
-        tarefa.Termino = DateTime.Now;
-        tarefa.HorasUtilizadas = _tarefaServices.CalcularHorasUtilizadas(tarefa.Termino, tarefa.Reinicio, tarefa.Pausa, tarefa.Inicio);
-        tarefa.HorasDePausa = _tarefaServices.CalcularhorasDePausa(tarefa.Reinicio, tarefa.Pausa);
-        tarefa.StatusDaTarefa = "Finalizada";
+            tarefa.Termino = DateTime.Now;
+            double horasUtilizadas = _tarefaServices.CalcularHorasUtilizadas(tarefa.Termino, tarefa.Reinicio, tarefa.Pausa, tarefa.Inicio);
+            tarefa.HorasUtilizadas = TimeSpan.FromHours(horasUtilizadas);
+            tarefa.HorasDePausa = _tarefaServices.CalcularhorasDePausa(tarefa.Reinicio, tarefa.Pausa);
+            tarefa.StatusDaTarefa = "Finalizada";
 
-        await _context.Tarefas.AddAsync(tarefa);
-        await _context.SaveChangesAsync();
+            _context.Update(tarefa);
+            await _context.SaveChangesAsync();
 
-        return Ok(tarefa);
+            return Ok(tarefa);
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
     }
 
     [HttpDelete("Deletar/{id}")]
@@ -151,8 +165,26 @@ public class TarefaController : ControllerBase
     {
         throw new NotImplementedException();
     }
-}
 
+    [HttpGet("exportar")]
+    public async Task<IActionResult> ExportarParaExcel(DateTime? dataInicio, DateTime? dataFim)
+    {
+        dataInicio ??= DateTime.MinValue;
+        dataFim ??= DateTime.MaxValue;
+
+        var tarefas = await _context.Tarefas
+            .Where(t => t.Inicio >= dataInicio && t.Termino <= dataFim)
+            .ToListAsync();
+
+        if (tarefas == null || tarefas.Count == 0)
+            return BadRequest("Nenhuma tarefa encontrada para exportação.");
+
+        var arquivoExcel = await _tarefaServices.ExportarTarefasParaExcelAsync(tarefas);
+        return File(arquivoExcel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"horas_{dataInicio.Value.ToString("yyyyMMdd")}_{dataFim.Value.ToString("yyyyMMdd")}.xlsx");
+    }
+
+}
 //Exemplo de conversão com automapper de viewmodel para entidade
 //[HttpPost]
 //    public async Task<IActionResult> CriarTarefa([FromBody] TarefaViewModel viewModel)

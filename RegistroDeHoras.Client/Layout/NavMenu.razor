@@ -1,7 +1,13 @@
-﻿<MudPaper Width="250px" Elevation="0" Class="py-3">
+﻿@using RegistroDeHoras.Client.Pages
+@inject IDialogService DialogService
+
+<MudPaper Width="250px" Elevation="0" Class="py-3">
     <MudNavMenu Color="Color.Info">
         <MudNavLink Href="/" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Dashboard" title="Home">Home</MudNavLink>
         <MudNavLink Href="/registro" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.MoreTime" title="Registrar">Registrar</MudNavLink>
+        <MudNavLink Icon="@Icons.Material.Filled.FilterAlt" Title="Filtrar Tarefas" OnClick="ExtrairRelatorio">
+            Filtrar Tarefas
+        </MudNavLink>
         <MudNavLink Href="/counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PlusOne" title="Counter">Counter</MudNavLink>
         <MudNavLink Href="/weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AcUnit" title="Weather">Weather</MudNavLink>
         <MudNavGroup Title="Settings" Icon="@Icons.Material.Filled.Settings" Expanded="true">
@@ -11,3 +17,21 @@
         <MudNavLink Href="/about" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Info" title="About">About</MudNavLink>
     </MudNavMenu>
 </MudPaper>
+
+@code{
+    private async Task ExtrairRelatorio()
+    {
+        // var tarefa = args.Item;
+
+        // var parameters = new DialogParameters
+        // {
+        //     { "tarefaSelecionada", tarefa },
+        //     { "OnTarefaAtualizada", EventCallback.Factory.Create<TarefaViewModel>(this, AtualizarListaDeTarefas) }
+        // };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = DialogService.Show<ExtrairRelatorioDialog>();
+        await dialog.Result;
+    }
+}

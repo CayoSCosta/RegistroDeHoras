@@ -1,0 +1,39 @@
+﻿@inject ITarefaServices TarefaServices;
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText>Filtrar Tarefas por Data</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudDateRangePicker PickerVariant=PickerVariant.Inline @bind-DateRange="@_dateRange" Margin="Margin.Dense" PlaceholderStart="Start Date" PlaceholderEnd="End Date" Label="Range" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="FecharDialogo" Color="Color.Secondary">Cancelar</MudButton>
+        <MudButton OnClick="FiltrarTarefas" Color="Color.Primary">Filtrar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    private bool _dialogOpen = false;
+    private DateRange _dateRange = new DateRange(DateTime.Today.AddDays(-7), DateTime.Today);
+
+    private void AbrirDialogoDeFiltro()
+    {
+        _dialogOpen = true;
+    }
+
+    private void FecharDialogo()
+    {
+        _dialogOpen = false;
+    }
+
+    private async Task FiltrarTarefas()
+    {
+        await TarefaServices.ObterTarefasPorData(_dateRange.Start ?? DateTime.MinValue, _dateRange.End ?? DateTime.MaxValue);
+
+        Snackbar.Add($"Tarefas filtradas de {_dateRange.Start:dd/MM/yyyy} até {_dateRange.End:dd/MM/yyyy}", Severity.Success);
+        FecharDialogo();
+    }
+}

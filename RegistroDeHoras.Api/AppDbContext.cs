@@ -22,4 +22,16 @@ public class AppDbContext : DbContext
             optionsBuilder.UseSqlServer(connectionString);
         }
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Tarefa>()
+            .Property(t => t.HorasUtilizadasRaw)
+            .HasColumnName("HorasUtilizadas");
+
+        modelBuilder.Entity<Tarefa>()
+            .Property(t => t.HorasDePausaRaw)
+            .HasColumnName("HorasDePausa");
+    }
+
 }

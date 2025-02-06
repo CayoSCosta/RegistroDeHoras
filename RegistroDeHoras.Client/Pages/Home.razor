@@ -6,12 +6,13 @@
 @inject ISnackbar Snackbar
 
 
-<MudTable T="TarefaViewModel" Items="@tarefas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes"
-          Filter="new Func<TarefaViewModel,bool>(FilterFunc1)">
+<MudTable T="TarefaViewModel" Items="@tarefas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading"
+    LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes" Filter="new Func<TarefaViewModel, bool>(FilterFunc1)">
     <ToolBarContent>
         <MudText Typo="Typo.h2">Tarefas</MudText>
         <MudSpacer />
-        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Número da Tarefa</MudTh>
@@ -47,9 +48,7 @@
     private TarefaViewModel? tarefaSelecionada;
     private bool modalAberto = false;
 
-
     private IEnumerable<TarefaViewModel> listaDeTarefas = new List<TarefaViewModel>();
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,11 +76,12 @@
 
     private async Task TarefaDetalhes(TableRowClickEventArgs<TarefaViewModel> args)
     {
-        var tarefa = args.Item; // Aqui, você pega a tarefa clicada
+        var tarefa = args.Item;
 
         var parameters = new DialogParameters
         {
-            { "tarefaSelecionada", tarefa }
+            { "tarefaSelecionada", tarefa },
+            { "OnTarefaAtualizada", EventCallback.Factory.Create<TarefaViewModel>(this, AtualizarListaDeTarefas) }
         };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
@@ -90,14 +90,29 @@
         await dialog.Result;
     }
 
+    private void AtualizarListaDeTarefas(TarefaViewModel tarefaAtualizada)
+    {
+        if (tarefas != null)
+        {
+            var tarefaIndex = tarefas.ToList().FindIndex(t => t.NumeroAtividade == tarefaAtualizada.NumeroAtividade);
+            if (tarefaIndex != -1)
+            {
+                var listaTemporaria = tarefas.ToList();
+                listaTemporaria[tarefaIndex] = tarefaAtualizada;
+                tarefas = listaTemporaria;
+                StateHasChanged();
+            }
+        }
+    }
+
     private Color GetStatusColor(string? status)
     {
         return status switch
         {
             "Aberto" => Color.Primary,
             "Parada" => Color.Warning,
-            "Em andamento" => Color.Tertiary,
-            "Concluído" => Color.Success,
+            "Em andamento" => Color.Primary,
+            "Finalizada" => Color.Success,
             _ => Color.Default
         };
     }
@@ -117,4 +132,3 @@
         return false;
     }
 }
-

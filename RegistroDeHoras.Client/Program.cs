@@ -20,6 +20,7 @@ public class Program
 
         //var url = builder.Configuration.GetSection("RegistroDeHoras.Api")["Endpoint"];
         var url = "https://localhost:7146";
+        //var url = "http://localhost:5039";
 
         builder.Services.AddHttpClient("RegistroDeHoras.Api", options =>
         {

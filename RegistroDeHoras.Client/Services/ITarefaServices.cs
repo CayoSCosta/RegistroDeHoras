@@ -11,4 +11,5 @@ namespace RegistroDeHoras.Client.Services;
         Task<TarefaViewModel> PararTarefaAsync(string numeroDaTarefa);
         Task<TarefaViewModel> FinalizarTarefaAsync(string numeroDaTarefa);
         Task<bool> DeletarTarefaAsync(Guid id);
+        Task<List<TarefaViewModel>> ObterTarefasPorData(DateTime dataInicio, DateTime dataFim);
     }
