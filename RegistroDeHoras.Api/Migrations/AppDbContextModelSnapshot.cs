@@ -43,11 +43,13 @@ namespace RegistroDeHoras.Api.Migrations
                     b.Property<string>("Descricao")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("HorasDePausa")
-                        .HasColumnType("time");
+                    b.Property<long>("HorasDePausaRaw")
+                        .HasColumnType("bigint")
+                        .HasColumnName("HorasDePausa");
 
-                    b.Property<TimeSpan>("HorasUtilizadas")
-                        .HasColumnType("time");
+                    b.Property<long>("HorasUtilizadasRaw")
+                        .HasColumnType("bigint")
+                        .HasColumnName("HorasUtilizadas");
 
                     b.Property<DateTime>("Inicio")
                         .HasColumnType("datetime2");

@@ -88,7 +88,7 @@ public class TarefaController : ControllerBase
             Cliente = tarefaVM.Cliente,
             Descricao = tarefaVM.Descricao,
             NumeroAtividade = tarefaVM.NumeroAtividade,
-            StatusDaTarefa = "Em adamento",
+            StatusDaTarefa = "Em andamento",
             Inicio = DateTime.Now,
         };
 

@@ -12,8 +12,8 @@ using RegistroDeHoras.Api;
 namespace RegistroDeHoras.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250123193952_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250226172944_NovoBanco")]
+    partial class NovoBanco
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,11 +46,13 @@ namespace RegistroDeHoras.Api.Migrations
                     b.Property<string>("Descricao")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("HorasDePausa")
-                        .HasColumnType("time");
+                    b.Property<long>("HorasDePausaRaw")
+                        .HasColumnType("bigint")
+                        .HasColumnName("HorasDePausa");
 
-                    b.Property<TimeSpan>("HorasUtilizadas")
-                        .HasColumnType("time");
+                    b.Property<long>("HorasUtilizadasRaw")
+                        .HasColumnType("bigint")
+                        .HasColumnName("HorasUtilizadas");
 
                     b.Property<DateTime>("Inicio")
                         .HasColumnType("datetime2");

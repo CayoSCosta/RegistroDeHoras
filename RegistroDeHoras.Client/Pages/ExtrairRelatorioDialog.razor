@@ -7,6 +7,8 @@
     </TitleContent>
     <DialogContent>
         <MudDateRangePicker PickerVariant=PickerVariant.Inline @bind-DateRange="@_dateRange" Margin="Margin.Dense" PlaceholderStart="Start Date" PlaceholderEnd="End Date" Label="Range" />
+        <MudDatePicker Label="Data de início" @bind-Date="_dateInitial" ShowToolbar="false" />
+        bv<MudDatePicker Label="Data do fim" @bind-Date="_dateFinal" ShowToolbar="false" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="FecharDialogo" Color="Color.Secondary">Cancelar</MudButton>
@@ -18,6 +20,9 @@
 @code {
     private bool _dialogOpen = false;
     private DateRange _dateRange = new DateRange(DateTime.Today.AddDays(-7), DateTime.Today);
+
+    private DateTime? _dateInitial = DateTime.Today;
+    private DateTime? _dateFinal = DateTime.Today;
 
     private void AbrirDialogoDeFiltro()
     {

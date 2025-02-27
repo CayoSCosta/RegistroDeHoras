@@ -39,6 +39,10 @@
     </NoRecordsContent>
 </MudTable>
 
+<div style="position: fixed; bottom: 16px; right: 16px;">
+    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/registro"))" />
+</div>
+
 @code {
     private IEnumerable<TarefaViewModel>? tarefas;
     private bool _loading = true;

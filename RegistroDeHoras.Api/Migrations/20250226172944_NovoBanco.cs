@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RegistroDeHoras.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class NovoBanco : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,13 +20,13 @@ namespace RegistroDeHoras.Api.Migrations
                     Termino = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Pausa = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Reinicio = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    HorasUtilizadas = table.Column<TimeSpan>(type: "time", nullable: false),
-                    HorasDePausa = table.Column<TimeSpan>(type: "time", nullable: false),
-                    NumeroTarefa = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NumeroAtividade = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Titulo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Cliente = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Descricao = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StatusDaTarefa = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HorasUtilizadas = table.Column<long>(type: "bigint", nullable: false),
+                    HorasDePausa = table.Column<long>(type: "bigint", nullable: false),
                     Ativo = table.Column<bool>(type: "bit", nullable: false),
                     DataDeCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DataDeModificacao = table.Column<DateTime>(type: "datetime2", nullable: false)
