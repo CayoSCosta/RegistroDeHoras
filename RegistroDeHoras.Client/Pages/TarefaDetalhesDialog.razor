@@ -4,37 +4,61 @@
 
 <MudDialog Style="Width:500px;">
     <TitleContent>
-        <MudText>Detalhes da Tarefa</MudText>
+        <MudText Typo="Typo.h6">Detalhes da Tarefa</MudText>
     </TitleContent>
     <DialogContent>
         @if (tarefaSelecionada != null)
         {
+            @if (tarefaSelecionada.StatusDaTarefa == "Em andamento")
+            {
+                <MudAlert Severity="Severity.Success" NoIcon="true" Variant="Variant.Filled" Class="my-2">
+                    <MudText Typo="Typo.h6">@tarefaSelecionada.StatusDaTarefa</MudText>
+                </MudAlert>
+            }
 
-            <MudText>Ticket: @tarefaSelecionada.NumeroAtividade</MudText>
-            <MudText>Cliente: @tarefaSelecionada.Cliente</MudText>
-            <MudText>Título: @tarefaSelecionada.Titulo</MudText>
-            <MudText>Data de Início: @tarefaSelecionada.Inicio</MudText>
-            <MudText>Status: @tarefaSelecionada.StatusDaTarefa</MudText>
+            <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="my-2">
+                <MudText Typo="Typo.h6">Ticket:</MudText> @tarefaSelecionada.NumeroAtividade
+            </MudAlert>
+
+            <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="my-2">
+                <MudText Typo="Typo.h6">Cliente:</MudText> @tarefaSelecionada.Cliente
+            </MudAlert>
+
+            <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="my-2">
+                <MudText Typo="Typo.h6">Título:</MudText> @tarefaSelecionada.Titulo
+            </MudAlert>
+
+            <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="my-2">
+                <MudText Typo="Typo.h6">Data de Início:</MudText> @tarefaSelecionada.Inicio
+            </MudAlert>
 
             @if (tarefaSelecionada.Pausa != DateTime.MinValue)
             {
-                <MudText>Pausa: @tarefaSelecionada.Pausa.ToString("dd/MM/yyyy HH:mm")</MudText>
+                <MudText Typo="Typo.h6">Pausa:</MudText> @tarefaSelecionada.Pausa.ToString("dd/MM/yyyy HH:mm")
             }
             @if (tarefaSelecionada.Reinicio != DateTime.MinValue)
             {
-                <MudText>Reinício: @tarefaSelecionada.Reinicio.ToString("dd/MM/yyyy HH:mm")</MudText>
+                        <MudText Typo="Typo.h6">
+                            Reinício: @tarefaSelecionada.Reinicio.ToString("dd/MM/yyyy HH:mm")
+                        </MudText>
             }
             @if (tarefaSelecionada.Termino != DateTime.MinValue)
             {
-                <MudText>Data de Término: @tarefaSelecionada.Termino.ToString("dd/MM/yyyy HH:mm")</MudText>
+                        <MudText Typo="Typo.h6">
+                            Data de Término: @tarefaSelecionada.Termino.ToString("dd/MM/yyyy HH:mm")
+                         </MudText>
             }
             @if (tarefaSelecionada.HorasUtilizadas != TimeSpan.Zero)
             {
-                <MudText>Horas Utilizadas: @tarefaSelecionada.HorasUtilizadas.ToString()</MudText>
+                        <MudText Typo="Typo.h6">
+                            Horas Utilizadas: @tarefaSelecionada.HorasUtilizadas.ToString()
+                         </MudText>
             }
             @if (tarefaSelecionada.HorasDePausa != TimeSpan.Zero)
             {
-                <MudText>Horas de Pausa: @tarefaSelecionada.HorasDePausa.ToString()</MudText>
+                        <MudText Typo="Typo.h6">
+                            Horas de Pausa: @tarefaSelecionada.HorasDePausa.ToString()
+                         </MudText>
             }
 
         }
@@ -42,11 +66,11 @@
     <DialogActions>
         @if (tarefaSelecionada.StatusDaTarefa == "Em andamento")
         {
-            <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="Pausar">Parar</MudButton>
+                <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="Pausar">Parar</MudButton>
         }
         else
         {
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Pausar">Reiniciar</MudButton>
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Pausar">Reiniciar</MudButton>
         }
         <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Encerrar">Encerrar</MudButton>
     </DialogActions>

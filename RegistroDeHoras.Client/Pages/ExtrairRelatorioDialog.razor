@@ -6,9 +6,9 @@
         <MudText>Filtrar Tarefas por Data</MudText>
     </TitleContent>
     <DialogContent>
-        <MudDateRangePicker PickerVariant=PickerVariant.Inline @bind-DateRange="@_dateRange" Margin="Margin.Dense" PlaceholderStart="Start Date" PlaceholderEnd="End Date" Label="Range" />
+        @* <MudDateRangePicker PickerVariant=PickerVariant.Inline @bind-DateRange="@_dateRange" Margin="Margin.Dense" PlaceholderStart="Start Date" PlaceholderEnd="End Date" Label="Range" /> *@
         <MudDatePicker Label="Data de início" @bind-Date="_dateInitial" ShowToolbar="false" />
-        bv<MudDatePicker Label="Data do fim" @bind-Date="_dateFinal" ShowToolbar="false" />
+        <MudDatePicker Label="Data do fim" @bind-Date="_dateFinal" ShowToolbar="false" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="FecharDialogo" Color="Color.Secondary">Cancelar</MudButton>
