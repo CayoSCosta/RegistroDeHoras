@@ -8,40 +8,26 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        // Adicionar serviços ao contêiner
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        // builder.Services.AddSwaggerGen(c =>
-        // {
-        //     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-        //     {
-        //         Title = "Registro de horas API",
-        //         Version = "v1",
-        //         Description = "Gerenciamento de horas e atividades.",
-        //     });
-        // });
 
-        // Configure SQLite DbContext
-        //builder.Services.AddDbContext<AppDbContext>(options =>
-        //    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+        // Configurar DbContext
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-        var conn = builder.Configuration.GetConnectionString("DefaultConnection");
-
 
         builder.Services.AddControllers();
 
         builder.Services.AddScoped<ITarefaServices, TarefaServices>();
         builder.Services.AddAutoMapper(typeof(Program));
 
-        // Adicionando CORS
+        // Adicionar CORS
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("RegistroDeHoras.Client", policy =>
             {
-                policy.WithOrigins("https://localhost:7224") 
-                //policy.WithOrigins("http://localhost:5200") 
+                policy.WithOrigins("https://localhost:7224")
                       .AllowAnyMethod()
                       .AllowAnyHeader();
             });
@@ -59,15 +45,17 @@ public class Program
             });
         }
 
-        // Configure the HTTP request pipeline.
+        // Configurar o pipeline de solicitação HTTP
         app.UseCors("RegistroDeHoras.Client");
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-
 
         app.MapControllers();
 
         app.Run();
     }
 }
+
+
+

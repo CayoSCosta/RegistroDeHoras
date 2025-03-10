@@ -24,53 +24,47 @@ public class TarefaServices : ITarefaServices
         return horasUtilizadas.TotalHours;
     }
 
-
     public TimeSpan CalcularhorasDePausa(DateTime reinicio, DateTime pausa)
     {
         TimeSpan horasDePausa = reinicio - pausa;
         return horasDePausa;
     }
 
-    public async Task<byte[]> ExportarTarefasParaExcelAsync(List<Tarefa> tarefas)
+    public byte[] GerarRelatorioExcel(List<Tarefa> tarefas, DateTime dataInicio, DateTime dataFim)
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        using var package = new ExcelPackage();
+        var worksheet = package.Workbook.Worksheets.Add("Relatório de Tarefas");
 
-        using (var package = new ExcelPackage())
+        // Cabeçalhos
+        worksheet.Cells[1, 1].Value = "Número da Atividade";
+        worksheet.Cells[1, 2].Value = "Título";
+        worksheet.Cells[1, 3].Value = "Cliente";
+        worksheet.Cells[1, 4].Value = "Descrição";
+        worksheet.Cells[1, 5].Value = "Início";
+        worksheet.Cells[1, 6].Value = "Término";
+        worksheet.Cells[1, 7].Value = "Horas Utilizadas";
+        worksheet.Cells[1, 8].Value = "Horas de Pausa";
+        worksheet.Cells[1, 9].Value = "Status";
+
+        // Dados
+        for (int i = 0; i < tarefas.Count; i++)
         {
-            var worksheet = package.Workbook.Worksheets.Add("Tarefas");
-
-            worksheet.Cells[1, 1].Value = "Ticket";
-            worksheet.Cells[1, 2].Value = "Cliente";
-            worksheet.Cells[1, 3].Value = "Título";
-            worksheet.Cells[1, 4].Value = "Início";
-            worksheet.Cells[1, 5].Value = "Fim";
-            worksheet.Cells[1, 6].Value = "Horas Utilizadas";
-
-            using (var range = worksheet.Cells["A1:F1"])
-            {
-                range.Style.Font.Bold = true;
-                range.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            }
-
-            int linha = 2;
-            foreach (var tarefa in tarefas)
-            {
-                worksheet.Cells[linha, 1].Value = tarefa.NumeroAtividade;
-                worksheet.Cells[linha, 2].Value = tarefa.Cliente;
-                worksheet.Cells[linha, 3].Value = tarefa.Titulo;
-                worksheet.Cells[linha, 4].Value = tarefa.Inicio;
-                worksheet.Cells[linha, 5].Value = tarefa.Termino;
-                worksheet.Cells[linha, 6].Value = tarefa.HorasUtilizadas.TotalHours;
-
-                linha++;
-            }
-
-            worksheet.Cells.AutoFitColumns();
-
-            return await package.GetAsByteArrayAsync();
+            var tarefa = tarefas[i];
+            worksheet.Cells[i + 2, 1].Value = tarefa.NumeroAtividade;
+            worksheet.Cells[i + 2, 2].Value = tarefa.Titulo;
+            worksheet.Cells[i + 2, 3].Value = tarefa.Cliente;
+            worksheet.Cells[i + 2, 4].Value = tarefa.Descricao;
+            worksheet.Cells[i + 2, 5].Value = tarefa.Inicio.ToString("dd/MM/yyyy HH:mm");
+            worksheet.Cells[i + 2, 6].Value = tarefa.Termino.ToString("dd/MM/yyyy HH:mm");
+            worksheet.Cells[i + 2, 7].Value = tarefa.HorasUtilizadas.ToString(@"hh\:mm\:ss");
+            worksheet.Cells[i + 2, 8].Value = tarefa.HorasDePausa.ToString(@"hh\:mm\:ss");
+            worksheet.Cells[i + 2, 9].Value = tarefa.StatusDaTarefa;
         }
+
+        // Ajusta a largura das colunas
+        worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+        return package.GetAsByteArray();
     }
 
 }

@@ -5,21 +5,20 @@
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
-
 <MudTable T="TarefaViewModel" Items="@tarefas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading"
-    LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes" Filter="new Func<TarefaViewModel, bool>(FilterFunc1)">
+          LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes" Filter="new Func<TarefaViewModel, bool>(FilterFunc1)">
     <ToolBarContent>
         <MudText Typo="Typo.h2">Tarefas</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start"
-            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Número da Tarefa</MudTh>
         <MudTh>Cliente</MudTh>
         <MudTh>Data de Abertura</MudTh>
         <MudTh>Status da Atividade</MudTh>
-        <MudTh></MudTh>
+        <MudTh>Ações</MudTh>
     </HeaderContent>
 
     <RowTemplate Context="tarefa">
@@ -29,8 +28,9 @@
         <MudTd DataLabel="Status">
             <MudChip T="string" Color="GetStatusColor(tarefa.StatusDaTarefa)">@tarefa.StatusDaTarefa</MudChip>
         </MudTd>
-        <MudTd DataLabel="Status">
-            <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error"/>
+        <MudTd DataLabel="Acoes">
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" />
+            <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" />
         </MudTd>
     </RowTemplate>
     <PagerContent>
@@ -63,7 +63,6 @@
         try
         {
             tarefas = await TarefaServices.ObterTodasTarefasAsync();
-            if (tarefas == null) tarefas = new List<TarefaViewModel>();
 
             var uri = new Uri(Navigation.Uri);
             var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
@@ -140,3 +139,4 @@
         return false;
     }
 }
+

@@ -1,44 +1,61 @@
-﻿@inject ITarefaServices TarefaServices;
+﻿@using RegistroDeHoras.Client.Helpers
+@inject ITarefaServices TarefaServices
 @inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
 <MudDialog>
     <TitleContent>
         <MudText>Filtrar Tarefas por Data</MudText>
     </TitleContent>
     <DialogContent>
-        @* <MudDateRangePicker PickerVariant=PickerVariant.Inline @bind-DateRange="@_dateRange" Margin="Margin.Dense" PlaceholderStart="Start Date" PlaceholderEnd="End Date" Label="Range" /> *@
         <MudDatePicker Label="Data de início" @bind-Date="_dateInitial" ShowToolbar="false" />
         <MudDatePicker Label="Data do fim" @bind-Date="_dateFinal" ShowToolbar="false" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="FecharDialogo" Color="Color.Secondary">Cancelar</MudButton>
-        <MudButton OnClick="FiltrarTarefas" Color="Color.Primary">Filtrar</MudButton>
+        <MudButton OnClick="ExportarRelatorio" Color="Color.Primary">Exportar</MudButton>
     </DialogActions>
 </MudDialog>
 
-
 @code {
-    private bool _dialogOpen = false;
-    private DateRange _dateRange = new DateRange(DateTime.Today.AddDays(-7), DateTime.Today);
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = default!;
 
     private DateTime? _dateInitial = DateTime.Today;
     private DateTime? _dateFinal = DateTime.Today;
 
-    private void AbrirDialogoDeFiltro()
-    {
-        _dialogOpen = true;
-    }
-
     private void FecharDialogo()
     {
-        _dialogOpen = false;
+        MudDialog.Close();
     }
 
-    private async Task FiltrarTarefas()
+    private async Task ExportarRelatorio()
     {
-        await TarefaServices.ObterTarefasPorData(_dateRange.Start ?? DateTime.MinValue, _dateRange.End ?? DateTime.MaxValue);
+        try
+        {
+            var dataInicio = _dateInitial ?? DateTime.MinValue;
+            var dataFim = _dateFinal ?? DateTime.MaxValue;
 
-        Snackbar.Add($"Tarefas filtradas de {_dateRange.Start:dd/MM/yyyy} até {_dateRange.End:dd/MM/yyyy}", Severity.Success);
-        FecharDialogo();
+            var arquivoExcel = await TarefaServices.ExportarTarefasParaExcelAsync(dataInicio, dataFim);
+
+            var fileName = $"horas_{dataInicio:yyyyMMdd}_{dataFim:yyyyMMdd}.xlsx";
+            var fileContent = new ByteArrayContent(arquivoExcel);
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            fileContent.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = fileName
+                };
+
+            var fileStream = new MemoryStream(arquivoExcel);
+            var file = new BlazorDownloadFile(JSRuntime, fileStream, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            await file.DownloadFile();
+
+            Snackbar.Add($"Relatório exportado com sucesso de {dataInicio:dd/MM/yyyy} até {dataFim:dd/MM/yyyy}", Severity.Success);
+            FecharDialogo();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao exportar o relatório: {ex.Message}", Severity.Error);
+        }
     }
 }

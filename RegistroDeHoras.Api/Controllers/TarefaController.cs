@@ -33,46 +33,40 @@ public class TarefaController : ControllerBase
             if (_context.Tarefas == null)
                 return NotFound("Nenhuma tarefa encontrada");
 
-            var listaDetarefas = await _context.Tarefas.ToListAsync();
-            List<TarefaViewModel> listaDeTarefasViewModel = new();
-            foreach (var tarefa in listaDetarefas)
-            {
-                TarefaViewModel tarefaViewModel = new()
-                {
-                    Inicio = tarefa.Inicio,
-                    Termino = tarefa.Termino,
-                    Pausa = tarefa.Pausa,
-                    Reinicio = tarefa.Reinicio,
-                    HorasUtilizadas = tarefa.HorasUtilizadas,
-                    HorasDePausa = tarefa.HorasDePausa,
-                    NumeroAtividade = tarefa.NumeroAtividade,
-                    Titulo = tarefa.Titulo,
-                    Cliente = tarefa.Cliente,
-                    Descricao = tarefa.Descricao,
-                    StatusDaTarefa = tarefa.StatusDaTarefa,
-                };
+            var listaDetarefas = await _context.Tarefas
+                .Include(t => t.Pausas) // Inclui as pausas associadas às tarefas
+                .Where(t => t.Pausas.Any()) // Filtra apenas as tarefas que possuem pausas
+                .ToListAsync();
 
-                listaDeTarefasViewModel.Add(tarefaViewModel);
-            }
+            if (listaDetarefas == null || listaDetarefas.Count == 0)
+                return NotFound("Nenhuma tarefa com pausas encontrada");
+
+            // Mapeia a lista de Entidades para ViewModels usando AutoMapper
+            var listaDeTarefasViewModel = _mapper.Map<List<TarefaViewModel>>(listaDetarefas);
 
             return Ok(listaDeTarefasViewModel);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
-            throw;
+            _logger?.LogError(ex, "Erro ao obter todas as tarefas");
+            return StatusCode(500, "Erro interno ao obter todas as tarefas");
         }
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<Tarefa>> ObterTarefaPorIdAsync(Guid id)
+    public async Task<ActionResult<TarefaViewModel>> ObterTarefaPorIdAsync(Guid id)
     {
-        var tarefa = await _context.Tarefas.FindAsync(id);
+        var tarefa = await _context.Tarefas
+            .Include(t => t.Pausas) // Inclui as pausas associadas à tarefa
+            .FirstOrDefaultAsync(t => t.Id == id);
 
         if (tarefa == null)
             return NotFound();
 
-        return Ok(tarefa);
+        // Mapeia a entidade Tarefa para TarefaViewModel usando AutoMapper
+        var tarefaViewModel = _mapper.Map<TarefaViewModel>(tarefa);
+
+        return Ok(tarefaViewModel);
     }
 
     [HttpPost("Nova")]
@@ -80,31 +74,39 @@ public class TarefaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> CriarTarefa([FromBody] TarefaViewModel tarefaVM)
     {
-        _logger?.LogInformation("Iniciando criação de uma nova tarefa com Titulo: {Titulo}", tarefaVM.Titulo);
-
-        var tarefa = new Tarefa
+        try
         {
-            Titulo = tarefaVM.Titulo,
-            Cliente = tarefaVM.Cliente,
-            Descricao = tarefaVM.Descricao,
-            NumeroAtividade = tarefaVM.NumeroAtividade,
-            StatusDaTarefa = "Em andamento",
-            Inicio = DateTime.Now,
-        };
+            _logger?.LogInformation("Iniciando criação de uma nova tarefa com Titulo: {Titulo}", tarefaVM.Titulo);
 
-        await _context.Tarefas.AddAsync(tarefa);
-        await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+            // Mapeando TarefaViewModel para Tarefa usando AutoMapper
+            var tarefa = _mapper.Map<Tarefa>(tarefaVM);
+            tarefa.StatusDaTarefa = "Em andamento";
+            tarefa.Inicio = DateTime.Now;
 
-        return Ok(tarefaVM);
+            await _context.Tarefas.AddAsync(tarefa);
+            await _context.SaveChangesAsync();
+
+            // Mapeando de volta para TarefaViewModel para retornar a resposta
+            var tarefaCriadaVM = _mapper.Map<TarefaViewModel>(tarefa);
+
+            return CreatedAtAction(nameof(ObterTarefaPorIdAsync), new { id = tarefa.Id }, tarefaCriadaVM);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Erro ao criar a tarefa");
+            return StatusCode(500, "Erro interno ao criar a tarefa");
+        }
     }
 
+
     [HttpPost("Parar")]
-    public async Task<IActionResult> PararTarefa([FromBody] string numeroDaTarefa)
+    public async Task<IActionResult> PararTarefa([FromBody] string numeroDaTarefa, string observacao)
     {
         var tarefa = await _context.Tarefas
+            .Include(t => t.Pausas) // Inclui as pausas associadas à tarefa
             .FirstOrDefaultAsync(t => t.NumeroAtividade == numeroDaTarefa);
 
         if (tarefa == null)
@@ -112,13 +114,15 @@ public class TarefaController : ControllerBase
 
         if (tarefa.StatusDaTarefa == "Em andamento")
         {
-            tarefa.Pausa = DateTime.Now;
+            // Adiciona uma nova pausa
+            var novaPausa = new Pausa
+            {
+                Inicio = DateTime.Now,
+                TarefaId = tarefa.Id,
+                Observacao = observacao
+            };
+            tarefa.Pausas.Add(novaPausa);
             tarefa.StatusDaTarefa = "Parada";
-        }
-        else if (tarefa.StatusDaTarefa == "Parada")
-        {
-            tarefa.Reinicio = DateTime.Now;
-            tarefa.StatusDaTarefa = "Em andamento";
         }
         else
         {
@@ -137,33 +141,98 @@ public class TarefaController : ControllerBase
         try
         {
             var tarefa = await _context.Tarefas
+                .Include(t => t.Pausas) // Inclui as pausas associadas à tarefa
                 .FirstOrDefaultAsync(t => t.NumeroAtividade == numeroDaTarefa);
 
             if (tarefa == null)
                 return NotFound();
 
+            // Finaliza a última pausa
+            var ultimaPausa = tarefa.Pausas.LastOrDefault(p => p.Termino == default);
+            if (ultimaPausa != null)
+            {
+                ultimaPausa.Termino = DateTime.Now;
+                ultimaPausa.Observacao = "Tarefa finalizada";
+            }
+
             tarefa.Termino = DateTime.Now;
-            double horasUtilizadas = _tarefaServices.CalcularHorasUtilizadas(tarefa.Termino, tarefa.Reinicio, tarefa.Pausa, tarefa.Inicio);
-            tarefa.HorasUtilizadas = TimeSpan.FromHours(horasUtilizadas);
-            tarefa.HorasDePausa = _tarefaServices.CalcularhorasDePausa(tarefa.Reinicio, tarefa.Pausa);
             tarefa.StatusDaTarefa = "Finalizada";
+
+            // Calcula as horas utilizadas
+            tarefa.CalcularHorasUtilizadas();
 
             _context.Update(tarefa);
             await _context.SaveChangesAsync();
 
-            return Ok(tarefa);
+            // Mapeia a entidade Tarefa para TarefaViewModel usando AutoMapper
+            var tarefaViewModel = _mapper.Map<TarefaViewModel>(tarefa);
+
+            return Ok(tarefaViewModel);
         }
         catch (Exception ex)
         {
-
-            throw;
+            _logger?.LogError(ex, "Erro ao finalizar a tarefa com Número da Atividade: {NumeroAtividade}", numeroDaTarefa);
+            return StatusCode(500, "Erro interno ao finalizar a tarefa");
         }
     }
 
-    [HttpDelete("Deletar/{id}")]
-    public IEnumerable<Tarefa> DeletarTarefaTarefa(Guid Id)
+    [HttpPut("Editar/{numeroAtividade}")]
+    [ProducesResponseType(typeof(TarefaViewModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> EditarTarefa(string numeroAtividade, [FromBody] TarefaViewModel tarefaVM)
     {
-        throw new NotImplementedException();
+        _logger?.LogInformation("Iniciando edição da tarefa com Número da Atividade: {NumeroAtividade}", numeroAtividade);
+
+        // Buscar a tarefa pelo Número da Atividade
+        var tarefa = await _context.Tarefas
+                                   .Include(t => t.Pausas) // Inclui as pausas associadas à tarefa
+                                   .FirstOrDefaultAsync(t => t.NumeroAtividade == numeroAtividade);
+
+        if (tarefa == null)
+        {
+            return NotFound(new { Message = "Tarefa não encontrada." });
+        }
+
+        // Mapeia os dados da ViewModel para a entidade Tarefa
+        _mapper.Map(tarefaVM, tarefa);
+
+        // Atualizar os dados
+        tarefa.Titulo = tarefaVM.Titulo;
+        tarefa.Cliente = tarefaVM.Cliente;
+        tarefa.Descricao = tarefaVM.Descricao;
+        tarefa.StatusDaTarefa = tarefaVM.StatusDaTarefa;
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        await _context.SaveChangesAsync();
+
+        return Ok(tarefaVM);
+    }
+
+    [HttpDelete("Deletar/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeletarTarefa(Guid id)
+    {
+        _logger?.LogInformation("Iniciando exclusão da tarefa com ID: {Id}", id);
+
+        // Buscar a tarefa pelo ID
+        var tarefa = await _context.Tarefas
+                                   .Include(t => t.Pausas) // Inclui as pausas associadas à tarefa
+                                   .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (tarefa == null)
+        {
+            return NotFound(new { Message = "Tarefa não encontrada." });
+        }
+
+        // Remover a tarefa
+        _context.Tarefas.Remove(tarefa);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { Message = "Tarefa excluída com sucesso." });
     }
 
     [HttpGet("exportar")]
@@ -174,17 +243,19 @@ public class TarefaController : ControllerBase
 
         var tarefas = await _context.Tarefas
             .Where(t => t.Inicio >= dataInicio && t.Termino <= dataFim)
+            .Include(t => t.Pausas) // Inclui as pausas associadas às tarefas
             .ToListAsync();
 
         if (tarefas == null || tarefas.Count == 0)
             return BadRequest("Nenhuma tarefa encontrada para exportação.");
 
-        var arquivoExcel = await _tarefaServices.ExportarTarefasParaExcelAsync(tarefas);
+        var arquivoExcel = this._tarefaServices.GerarRelatorioExcel(tarefas, dataInicio.Value, dataFim.Value);
         return File(arquivoExcel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            $"horas_{dataInicio.Value.ToString("yyyyMMdd")}_{dataFim.Value.ToString("yyyyMMdd")}.xlsx");
+            $"horas_{dataInicio.Value:yyyyMMdd}_{dataFim.Value:yyyyMMdd}.xlsx");
     }
 
 }
+
 //Exemplo de conversão com automapper de viewmodel para entidade
 //[HttpPost]
 //    public async Task<IActionResult> CriarTarefa([FromBody] TarefaViewModel viewModel)

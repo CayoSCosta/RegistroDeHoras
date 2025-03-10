@@ -8,8 +8,13 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<TarefaViewModel, Tarefa>();
+        // Mapeamento de TarefaViewModel para Tarefa
+        CreateMap<TarefaViewModel, Tarefa>()
+            .ForMember(dest => dest.Pausas, opt => opt.MapFrom(src => src.Pausas));
 
-        CreateMap<Tarefa, TarefaViewModel>();
+        // Mapeamento de Tarefa para TarefaViewModel
+        CreateMap<Tarefa, TarefaViewModel>()
+            .ForMember(dest => dest.HorasUtilizadas, opt => opt.MapFrom(src => src.HorasUtilizadas))
+            .ForMember(dest => dest.HorasDePausa, opt => opt.MapFrom(src => src.HorasDePausa)); 
     }
 }

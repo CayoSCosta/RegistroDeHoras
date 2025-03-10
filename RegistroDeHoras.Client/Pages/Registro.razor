@@ -57,12 +57,17 @@
         {
             if (!string.IsNullOrEmpty(tarefa.NumeroAtividade) && !string.IsNullOrEmpty(tarefa.Cliente) && !string.IsNullOrEmpty(tarefa.Titulo) && !string.IsNullOrEmpty(tarefa.Descricao))
             {
-                var tarefaVm = await  TarefaServices.CriarTarefaAsync(tarefa.NumeroAtividade, tarefa.Cliente, tarefa.Titulo, tarefa.Descricao);
+                var tarefaVm = await TarefaServices.CriarTarefaAsync(tarefa);
 
                 if (tarefaVm != null)
+                {
                     Navigation.NavigateTo($"/?tarefa={tarefa.NumeroAtividade}");
+                    Snackbar.Add("Tarefa criada com sucesso!", Severity.Success);
+                }
                 else
-                    Snackbar.Add("Erro ao criar tarefa. Por favor consultar os logs", Severity.Error);
+                {
+                    Snackbar.Add("Erro ao criar tarefa. Por favor, consulte os logs.", Severity.Error);
+                }
             }
             else
             {
