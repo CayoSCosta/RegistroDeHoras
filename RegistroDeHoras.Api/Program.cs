@@ -9,7 +9,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Adicionar serviços ao contêiner
+        // Adicionar serviï¿½os ao contï¿½iner
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -27,7 +27,8 @@ public class Program
         {
             options.AddPolicy("RegistroDeHoras.Client", policy =>
             {
-                policy.WithOrigins("https://localhost:7224")
+                //policy.WithOrigins("https://localhost:7224")
+                policy.WithOrigins("http://localhost:5200")
                       .AllowAnyMethod()
                       .AllowAnyHeader();
             });
@@ -45,7 +46,7 @@ public class Program
             });
         }
 
-        // Configurar o pipeline de solicitação HTTP
+        // Configurar o pipeline de solicitaÃ§Ã£o HTTP
         app.UseCors("RegistroDeHoras.Client");
         app.UseHttpsRedirection();
 

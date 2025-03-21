@@ -3,12 +3,12 @@ using System.Net.Http.Json;
 
 namespace RegistroDeHoras.Client.Services;
 
-public class TarefaService : ITarefaServices
+public class TarefasService : ITarefasService
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<TarefaService> _logger;
+    private readonly ILogger<TarefasService> _logger;
 
-    public TarefaService(IHttpClientFactory httpClientFactory, ILogger<TarefaService> logger)
+    public TarefasService(IHttpClientFactory httpClientFactory, ILogger<TarefasService> logger)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
@@ -60,14 +60,14 @@ public class TarefaService : ITarefaServices
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Erro ao criar a tarefa. Código: {StatusCode}, Detalhes: {ErrorContent}", response.StatusCode, errorContent);
-                throw new ApplicationException($"Erro ao criar a tarefa. Código: {response.StatusCode}, Detalhes: {errorContent}");
+                _logger.LogError("Erro ao criar a tarefa. CÃ³digo: {StatusCode}, Detalhes: {ErrorContent}", response.StatusCode, errorContent);
+                throw new ApplicationException($"Erro ao criar a tarefa. CÃ³digo: {response.StatusCode}, Detalhes: {errorContent}");
             }
         }
         catch (HttpRequestException httpEx)
         {
-            _logger.LogError(httpEx, "Erro de solicitação HTTP ao criar a tarefa");
-            throw new ApplicationException("Erro de solicitação HTTP ao criar a tarefa", httpEx);
+            _logger.LogError(httpEx, "Erro de solicitaÃ§Ã£o HTTP ao criar a tarefa");
+            throw new ApplicationException("Erro de solicitaÃ§Ã£o HTTP ao criar a tarefa", httpEx);
         }
         catch (Exception ex)
         {
@@ -75,11 +75,11 @@ public class TarefaService : ITarefaServices
             throw new ApplicationException("Erro ao criar a tarefa", ex);
         }
     }
-
-    public async Task<TarefaViewModel> PararTarefaAsync(string numeroDaTarefa, string observacao)
+    
+    public async Task<TarefaViewModel> PararTarefaAsync(PararTarefaRequest request)
     {
         var httpClient = _httpClientFactory.CreateClient("RegistroDeHoras.Api");
-        var response = await httpClient.PostAsJsonAsync("api/Tarefa/Parar", new { numeroDaTarefa, observacao });
+        var response = await httpClient.PostAsJsonAsync("api/Tarefa/Parar", request);
 
         if (response.IsSuccessStatusCode)
         {
@@ -87,8 +87,9 @@ public class TarefaService : ITarefaServices
             return result ?? new TarefaViewModel();
         }
 
-        throw new ApplicationException($"Erro ao parar a tarefa. Código: {response.StatusCode}, Detalhes: {await response.Content.ReadAsStringAsync()}");
+        throw new ApplicationException($"Erro ao parar a tarefa. CÃ³digo: {response.StatusCode}, Detalhes: {await response.Content.ReadAsStringAsync()}");
     }
+
 
     public async Task<TarefaViewModel> FinalizarTarefaAsync(string numeroDaTarefa)
     {
@@ -123,7 +124,7 @@ public class TarefaService : ITarefaServices
             return result ?? new TarefaViewModel();
         }
 
-        throw new ApplicationException($"Erro ao editar a tarefa. Código: {response.StatusCode}, Detalhes: {await response.Content.ReadAsStringAsync()}");
+        throw new ApplicationException($"Erro ao editar a tarefa. CÃ³digo: {response.StatusCode}, Detalhes: {await response.Content.ReadAsStringAsync()}");
     }
 
     public async Task<List<TarefaViewModel>> ObterTarefasPorData(DateTime dataInicio, DateTime dataFim)
@@ -144,6 +145,6 @@ public class TarefaService : ITarefaServices
             return await response.Content.ReadAsByteArrayAsync();
         }
 
-        throw new ApplicationException($"Erro ao exportar tarefas. Código: {response.StatusCode}, Detalhes: {await response.Content.ReadAsStringAsync()}");
+        throw new ApplicationException($"Erro ao exportar tarefas. CÃ³digo: {response.StatusCode}, Detalhes: {await response.Content.ReadAsStringAsync()}");
     }
 }

@@ -2,7 +2,7 @@ using RegistroDeHoras.Model.ViewModels;
 
 namespace RegistroDeHoras.Client.Services;
 
-public interface ITarefaServices
+public interface ITarefasService
 {
     Task<List<TarefaViewModel>> ObterTodasTarefasAsync();
     Task<TarefaViewModel> ObterTarefaPorIdAsync(Guid id);
