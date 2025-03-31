@@ -19,8 +19,8 @@ public class Program
         builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("RegistroDeHoras.Api"));
 
         //var url = builder.Configuration.GetSection("RegistroDeHoras.Api")["Endpoint"];
-        //var url = "https://localhost:7146";
-        var url = "http://localhost:5039";
+        var url = "https://localhost:7146";
+        //var url = "http://localhost:5039";
 
         builder.Services.AddHttpClient("RegistroDeHoras.Api", options =>
         {
@@ -29,7 +29,7 @@ public class Program
 
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
         builder.Services.AddMudServices();
-        builder.Services.AddScoped<ITarefaServices, TarefaService>();
+        builder.Services.AddScoped<ITarefasServices, TarefasServices>();
         builder.Services.AddSingleton<ThemeService>();
 
 

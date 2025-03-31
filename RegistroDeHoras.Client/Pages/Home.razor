@@ -1,6 +1,6 @@
 ﻿@page "/"
 @using MudBlazor
-@inject ITarefaServices TarefaServices
+@inject ITarefasServices TarefaServices
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
@@ -22,7 +22,7 @@
     </HeaderContent>
 
     <RowTemplate Context="tarefa">
-        <MudTd DataLabel="Nr">@tarefa.NumeroAtividade</MudTd>
+        <MudTd DataLabel="Nr">@tarefa.NumeroDaAtividade</MudTd>
         <MudTd DataLabel="Cliente">@tarefa.Cliente</MudTd>
         <MudTd DataLabel="Data da abertura">@tarefa.Inicio.ToString("dd/MM/yyyy")</MudTd>
         <MudTd DataLabel="Status">
@@ -101,7 +101,7 @@
     {
         if (tarefas != null)
         {
-            var tarefaIndex = tarefas.ToList().FindIndex(t => t.NumeroAtividade == tarefaAtualizada.NumeroAtividade);
+            var tarefaIndex = tarefas.ToList().FindIndex(t => t.NumeroDaAtividade == tarefaAtualizada.NumeroDaAtividade);
             if (tarefaIndex != -1)
             {
                 var listaTemporaria = tarefas.ToList();
@@ -134,7 +134,7 @@
             return true;
         if (tarefa.Titulo.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        if (tarefa.NumeroAtividade.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (tarefa.NumeroDaAtividade.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
     }

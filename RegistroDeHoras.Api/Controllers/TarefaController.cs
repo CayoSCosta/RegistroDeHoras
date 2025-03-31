@@ -133,7 +133,7 @@
 //     {
 //         var tarefa = await _context.Tarefas
 //             .Include(t => t.Pausas) // Inclui as pausas associadas à tarefa
-//             .FirstOrDefaultAsync(t => t.NumeroAtividade == numeroDaTarefa);
+//             .FirstOrDefaultAsync(t => t.NumeroDaAtividade == numeroDaTarefa);
 
 //         if (tarefa == null)
 //             return NotFound();
@@ -168,7 +168,7 @@
 //         {
 //             var tarefa = await _context.Tarefas
 //                 .Include(t => t.Pausas) // Inclui as pausas associadas à tarefa
-//                 .FirstOrDefaultAsync(t => t.NumeroAtividade == numeroDaTarefa);
+//                 .FirstOrDefaultAsync(t => t.NumeroDaAtividade == numeroDaTarefa);
 
 //             if (tarefa == null)
 //                 return NotFound();
@@ -197,7 +197,7 @@
 //         }
 //         catch (Exception ex)
 //         {
-//             _logger?.LogError(ex, "Erro ao finalizar a tarefa com Número da Atividade: {NumeroAtividade}", numeroDaTarefa);
+//             _logger?.LogError(ex, "Erro ao finalizar a tarefa com Número da Atividade: {NumeroDaAtividade}", numeroDaTarefa);
 //             return StatusCode(500, "Erro interno ao finalizar a tarefa");
 //         }
 //     }
@@ -208,12 +208,12 @@
 //     [ProducesResponseType(StatusCodes.Status404NotFound)]
 //     public async Task<ActionResult> EditarTarefa(string numeroAtividade, [FromBody] TarefaViewModel tarefaVM)
 //     {
-//         _logger?.LogInformation("Iniciando edição da tarefa com Número da Atividade: {NumeroAtividade}", numeroAtividade);
+//         _logger?.LogInformation("Iniciando edição da tarefa com Número da Atividade: {NumeroDaAtividade}", numeroAtividade);
 
 //         // Buscar a tarefa pelo Número da Atividade
 //         var tarefa = await _context.Tarefas
 //                                    .Include(t => t.Pausas) // Inclui as pausas associadas à tarefa
-//                                    .FirstOrDefaultAsync(t => t.NumeroAtividade == numeroAtividade);
+//                                    .FirstOrDefaultAsync(t => t.NumeroDaAtividade == numeroAtividade);
 
 //         if (tarefa == null)
 //         {
@@ -318,6 +318,7 @@ using Microsoft.EntityFrameworkCore;
 using RegistroDeHoras.Api;
 using RegistroDeHoras.Api.Services;
 using RegistroDeHoras.Model;
+using RegistroDeHoras.Model.DTOs;
 using RegistroDeHoras.Model.ViewModels;
 
 namespace TarefaDeHoras.Api.Controllers;
@@ -339,7 +340,7 @@ public class TarefaController : ControllerBase
         _mapper = mapper;
     }
 
-    [HttpGet]
+    [HttpGet("TodasTarefas")]
     public async Task<ActionResult<List<TarefaViewModel>>> ObterTodosTarefasAsync()
     {
         var tarefas = await _context.Tarefas.Include(t => t.Pausas).ToListAsync();
@@ -353,7 +354,7 @@ public class TarefaController : ControllerBase
         return tarefa == null ? NotFound() : Ok(_mapper.Map<TarefaViewModel>(tarefa));
     }
 
-    [HttpPost]
+    [HttpPost("Nova")]
     public async Task<ActionResult> CriarTarefa([FromBody] TarefaViewModel tarefaVM)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);

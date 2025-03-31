@@ -1,14 +1,16 @@
 using RegistroDeHoras.Model.ViewModels;
 using System.Net.Http.Json;
+using RegistroDeHoras.Model.DTOs;
+using Microsoft.Extensions.Logging;
 
 namespace RegistroDeHoras.Client.Services;
 
-public class TarefasService : ITarefasService
+public class TarefasServices : ITarefasServices
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<TarefasService> _logger;
+    private readonly ILogger<TarefasServices> _logger;
 
-    public TarefasService(IHttpClientFactory httpClientFactory, ILogger<TarefasService> logger)
+    public TarefasServices(IHttpClientFactory httpClientFactory, ILogger<TarefasServices> logger)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;

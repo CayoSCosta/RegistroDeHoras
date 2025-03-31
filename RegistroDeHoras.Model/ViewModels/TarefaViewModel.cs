@@ -15,7 +15,7 @@ public class TarefaViewModel
     public TimeSpan HorasDePausa => Pausas.Aggregate(TimeSpan.Zero, (total, pausa) => total + pausa.Duracao);
 
     [Required(ErrorMessage = "O campo Número da Atividade é obrigatório.")]
-    public string? NumeroAtividade { get; set; }
+    public string? NumeroDaAtividade { get; set; }
 
     [Required(ErrorMessage = "O campo Título é obrigatório.")]
     public string? Titulo { get; set; }

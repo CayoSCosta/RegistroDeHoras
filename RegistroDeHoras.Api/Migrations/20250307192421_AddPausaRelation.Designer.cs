@@ -90,7 +90,7 @@ namespace RegistroDeHoras.Api.Migrations
                     b.Property<DateTime>("Inicio")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("NumeroAtividade")
+                    b.Property<string>("NumeroDaAtividade")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Solucao")

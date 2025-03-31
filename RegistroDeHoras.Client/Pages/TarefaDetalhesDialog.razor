@@ -1,4 +1,5 @@
-﻿@inject ITarefaServices TarefaServices
+﻿@using RegistroDeHoras.Model.DTOs
+@inject ITarefasServices TarefaServices
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
@@ -17,7 +18,7 @@
             }
 
             <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="my-2">
-                <MudText Typo="Typo.h6">Ticket:</MudText> @tarefaSelecionada.NumeroAtividade
+                <MudText Typo="Typo.h6">Ticket:</MudText> @tarefaSelecionada.NumeroDaAtividade
             </MudAlert>
 
             <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="my-2">
@@ -109,12 +110,16 @@
         {
             try
             {
-                if (tarefaSelecionada.NumeroAtividade != null)
+                if (tarefaSelecionada.NumeroDaAtividade != null)
                 {
-                    var tarefaAtualizada = await TarefaServices.PararTarefaAsync(tarefaSelecionada.NumeroAtividade, observacaoPausa);
+                    PararTarefaRequest requestDTO = new();
+                    requestDTO.NumeroDaTarefa = tarefaSelecionada.NumeroDaAtividade;
+                    requestDTO.Observacao = observacaoPausa;
+
+                    var tarefaAtualizada = await TarefaServices.PararTarefaAsync(requestDTO);
                     tarefaSelecionada = tarefaAtualizada;
                     await OnTarefaAtualizada.InvokeAsync(tarefaSelecionada);
-                    Snackbar.Add($"Tarefa {tarefaSelecionada.NumeroAtividade} pausada com sucesso!", Severity.Success);
+                    Snackbar.Add($"Tarefa {tarefaSelecionada.NumeroDaAtividade} pausada com sucesso!", Severity.Success);
                     FecharModal();
                 }
             }
@@ -131,12 +136,12 @@
         {
             try
             {
-                if (tarefaSelecionada.NumeroAtividade != null)
+                if (tarefaSelecionada.NumeroDaAtividade != null)
                 {
-                    var tarefaFinalizada = await TarefaServices.FinalizarTarefaAsync(tarefaSelecionada.NumeroAtividade);
+                    var tarefaFinalizada = await TarefaServices.FinalizarTarefaAsync(tarefaSelecionada.NumeroDaAtividade);
                     tarefaSelecionada = tarefaFinalizada;
                     await OnTarefaAtualizada.InvokeAsync(tarefaSelecionada);
-                    Snackbar.Add($"Tarefa {tarefaSelecionada.NumeroAtividade} encerrada com sucesso!", Severity.Success);
+                    Snackbar.Add($"Tarefa {tarefaSelecionada.NumeroDaAtividade} encerrada com sucesso!", Severity.Success);
                     FecharModal();
                 }
             }

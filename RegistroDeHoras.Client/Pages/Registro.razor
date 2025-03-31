@@ -1,5 +1,5 @@
 ﻿@page "/registro"
-@inject ITarefaServices TarefaServices;
+@inject ITarefasServices TarefaServices;
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
@@ -14,8 +14,8 @@
                 <!-- Campo Número da tarefa -->
                 <MudItem xs="12" md="12">
                     <MudTextField Label="Número da tarefa" Variant="Variant.Outlined"
-                    @bind-Value="tarefa.NumeroAtividade" Required="true"
-                    ErrorText="@ValidationMessage(nameof(tarefa.NumeroAtividade))" />
+                    @bind-Value="tarefa.NumeroDaAtividade" Required="true"
+                    ErrorText="@ValidationMessage(nameof(tarefa.NumeroDaAtividade))" />
                 </MudItem>
 
                 <!-- Campo Cliente -->
@@ -55,13 +55,13 @@
     {
         try
         {
-            if (!string.IsNullOrEmpty(tarefa.NumeroAtividade) && !string.IsNullOrEmpty(tarefa.Cliente) && !string.IsNullOrEmpty(tarefa.Titulo) && !string.IsNullOrEmpty(tarefa.Descricao))
+            if (!string.IsNullOrEmpty(tarefa.NumeroDaAtividade) && !string.IsNullOrEmpty(tarefa.Cliente) && !string.IsNullOrEmpty(tarefa.Titulo) && !string.IsNullOrEmpty(tarefa.Descricao))
             {
                 var tarefaVm = await TarefaServices.CriarTarefaAsync(tarefa);
 
                 if (tarefaVm != null)
                 {
-                    Navigation.NavigateTo($"/?tarefa={tarefa.NumeroAtividade}");
+                    Navigation.NavigateTo($"/?tarefa={tarefa.NumeroDaAtividade}");
                     Snackbar.Add("Tarefa criada com sucesso!", Severity.Success);
                 }
                 else
