@@ -10,7 +10,7 @@ public interface ITarefasServices
     Task<TarefaViewModel> CriarTarefaAsync(TarefaViewModel tarefaVM);
     Task<TarefaViewModel> PararTarefaAsync(PararTarefaRequest request);
     Task<TarefaViewModel> FinalizarTarefaAsync(string numeroDaTarefa);
-    Task<bool> DeletarTarefaAsync(Guid id);
+    Task<bool> DeletarTarefaAsync(string numeroDaTarefa);
     Task<TarefaViewModel> EditarTarefaAsync(string numeroAtividade, TarefaViewModel tarefaVM);
     Task<List<TarefaViewModel>> ObterTarefasPorData(DateTime dataInicio, DateTime dataFim);
     Task<byte[]> ExportarTarefasParaExcelAsync(DateTime dataInicio, DateTime dataFim);

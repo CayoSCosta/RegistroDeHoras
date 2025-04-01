@@ -4,6 +4,8 @@ namespace RegistroDeHoras.Model.ViewModels;
 
 public class TarefaViewModel
 {
+    public string? NumeroDaTarefa { get; set; }
+
     public DateTime Inicio { get; set; }
 
     public DateTime Termino { get; set; }

@@ -28,17 +28,20 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Mapeando a tabela Tarefa corretamente
         modelBuilder.Entity<Tarefa>()
             .Property(t => t.HorasUtilizadasRaw)
-            .HasColumnName("HorasUtilizadas");
+            .HasColumnName("HorasUtilizadasRaw");
 
         modelBuilder.Entity<Tarefa>()
             .Property(t => t.HorasDePausaRaw)
-            .HasColumnName("HorasDePausa");
+            .HasColumnName("HorasDePausaRaw");
 
+        // Configuração do relacionamento entre Tarefa e Pausa
         modelBuilder.Entity<Pausa>()
             .HasOne(p => p.Tarefa)
             .WithMany(t => t.Pausas)
-            .HasForeignKey(p => p.TarefaId);
+            .HasForeignKey(p => p.TarefaId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascateamento opcional se quiser excluir Pausas quando Tarefa for excluída
     }
 }

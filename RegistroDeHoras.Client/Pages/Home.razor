@@ -29,8 +29,10 @@ LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes" Filter="new Func<T
             <MudChip T="string" Color="GetStatusColor(tarefa.StatusDaTarefa)">@tarefa.StatusDaTarefa</MudChip>
         </MudTd>
         <MudTd DataLabel="Acoes">
-            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="() => EditarTarefa(tarefa.Id)" />
-            <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" OnClick="() => ExcluirTarefa(tarefa.Id)" />
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" />
+            @* <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" OnClick="() => ExcluirTarefa(tarefa.NumeroDaAtividade)" /> *@
+            <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" OnClick="() => TestarNumeroDaTarefa(tarefa.NumeroDaAtividade)" />
+
         </MudTd>
     </RowTemplate>
     <PagerContent>
@@ -146,6 +148,50 @@ LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes" Filter="new Func<T
         tarefas = await TarefaServices.ObterTodasTarefasAsync();
         StateHasChanged();
     }
+
+    private async Task ExcluirTarefa(string numeroDaTarefa)
+    {
+        if (string.IsNullOrWhiteSpace(numeroDaTarefa))
+        {
+            Snackbar.Add("Número da tarefa inválido.", Severity.Warning);
+            return;
+        }
+
+        var confirmacao = await DialogService.ShowMessageBox(
+            "Confirmação",
+            "Tem certeza de que deseja excluir esta tarefa?",
+            yesText: "Sim",
+            noText: "Cancelar");
+
+        if (confirmacao != true)
+            return;
+
+        try
+        {
+            bool sucesso = await TarefaServices.DeletarTarefaAsync(numeroDaTarefa);
+
+            if (sucesso)
+            {
+                Snackbar.Add("Tarefa excluída com sucesso!", Severity.Success);
+                await AtualizarListaDeTarefas();
+            }
+            else
+            {
+                Snackbar.Add("Falha ao excluir a tarefa. Tente novamente.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Erro ao excluir tarefa {numeroDaTarefa}: {ex.Message}");
+            Snackbar.Add("Ocorreu um erro ao excluir a tarefa.", Severity.Error);
+        }
+    }
+
+    private void TestarNumeroDaTarefa(string numero)
+    {
+        Console.WriteLine($"Número da tarefa: {numero}");
+    }
+
 
 }
 

@@ -107,13 +107,37 @@ public class TarefasServices : ITarefasServices
         throw new ApplicationException("Erro ao finalizar a tarefa.");
     }
 
-    public async Task<bool> DeletarTarefaAsync(Guid id)
+    public async Task<bool> DeletarTarefaAsync(string numeroDaTarefa)
     {
-        var httpClient = _httpClientFactory.CreateClient("RegistroDeHoras.Api");
-        var response = await httpClient.DeleteAsync($"api/Tarefa/Deletar/{id}");
+        if (string.IsNullOrWhiteSpace(numeroDaTarefa))
+            throw new ArgumentException("O número da tarefa não pode ser nulo ou vazio.", nameof(numeroDaTarefa));
 
-        return response.IsSuccessStatusCode;
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient("RegistroDeHoras.Api");
+            var response = await httpClient.DeleteAsync($"api/Tarefa/Deletar/{numeroDaTarefa}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Console.Error.WriteLine($"Erro ao deletar tarefa {numeroDaTarefa}: {response.StatusCode} - {errorMessage}");
+                return false;
+            }
+
+            return true;
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.Error.WriteLine($"Erro de conexão ao tentar deletar a tarefa {numeroDaTarefa}: {ex.Message}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Erro inesperado ao deletar a tarefa {numeroDaTarefa}: {ex.Message}");
+            throw; // Relança a exceção para permitir um tratamento mais adequado no nível superior
+        }
     }
+
 
     public async Task<TarefaViewModel> EditarTarefaAsync(string numeroAtividade, TarefaViewModel tarefaVM)
     {

@@ -381,7 +381,7 @@ public class TarefaController : ControllerBase
     [HttpPost("Parar")]
     public async Task<IActionResult> PararTarefa([FromBody] PararTarefaRequest request)
     {
-        var tarefa = await _context.Tarefas.Include(t => t.Pausas).FirstOrDefaultAsync(t => t.NumeroAtividade == request.NumeroDaTarefa);
+        var tarefa = await _context.Tarefas.Include(t => t.Pausas).FirstOrDefaultAsync(t => t.NumeroDaTarefa == request.NumeroDaTarefa);
         if (tarefa == null) return NotFound();
 
         tarefa.Pausas.Add(new Pausa { Inicio = DateTime.Now, TarefaId = tarefa.Id, Observacao = request.Observacao });
@@ -394,7 +394,7 @@ public class TarefaController : ControllerBase
     [HttpPut("Editar/{numeroAtividade}")]
     public async Task<ActionResult> EditarTarefa(string numeroAtividade, [FromBody] TarefaViewModel tarefaVM)
     {
-        var tarefa = await _context.Tarefas.Include(t => t.Pausas).FirstOrDefaultAsync(t => t.NumeroAtividade == numeroAtividade);
+        var tarefa = await _context.Tarefas.Include(t => t.Pausas).FirstOrDefaultAsync(t => t.NumeroDaTarefa == numeroAtividade);
         if (tarefa == null) return NotFound("Tarefa não encontrada.");
 
         _mapper.Map(tarefaVM, tarefa);
@@ -402,10 +402,10 @@ public class TarefaController : ControllerBase
         return Ok(tarefaVM);
     }
 
-    [HttpDelete("Deletar/{id}")]
-    public async Task<IActionResult> DeletarTarefa(Guid id)
+    [HttpDelete("Deletar/{numeroAtividade}")]
+    public async Task<IActionResult> DeletarTarefa(string numeroAtividade)
     {
-        var tarefa = await _context.Tarefas.Include(t => t.Pausas).FirstOrDefaultAsync(t => t.Id == id);
+        var tarefa = await _context.Tarefas.Include(t => t.Pausas).FirstOrDefaultAsync(t => t.NumeroDaTarefa == numeroAtividade);
         if (tarefa == null) return NotFound("Tarefa não encontrada.");
 
         _context.Tarefas.Remove(tarefa);

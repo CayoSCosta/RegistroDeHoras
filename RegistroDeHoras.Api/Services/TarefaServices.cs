@@ -50,7 +50,7 @@ public class TarefaServices : ITarefaServices
         for (int i = 0; i < tarefas.Count; i++)
         {
             var tarefa = tarefas[i];
-            worksheet.Cells[i + 2, 1].Value = tarefa.NumeroAtividade;
+            worksheet.Cells[i + 2, 1].Value = tarefa.NumeroDaTarefa;
             worksheet.Cells[i + 2, 2].Value = tarefa.Titulo;
             worksheet.Cells[i + 2, 3].Value = tarefa.Cliente;
             worksheet.Cells[i + 2, 4].Value = tarefa.Descricao;
