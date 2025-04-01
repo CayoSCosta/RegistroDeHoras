@@ -6,12 +6,12 @@
 @inject ISnackbar Snackbar
 
 <MudTable T="TarefaViewModel" Items="@tarefas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading"
-          LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes" Filter="new Func<TarefaViewModel, bool>(FilterFunc1)">
+LoadingProgressColor="Color.Info" OnRowClick="TarefaDetalhes" Filter="new Func<TarefaViewModel, bool>(FilterFunc1)">
     <ToolBarContent>
         <MudText Typo="Typo.h2">Tarefas</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Número da Tarefa</MudTh>
@@ -29,8 +29,8 @@
             <MudChip T="string" Color="GetStatusColor(tarefa.StatusDaTarefa)">@tarefa.StatusDaTarefa</MudChip>
         </MudTd>
         <MudTd DataLabel="Acoes">
-            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" />
-            <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" />
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="() => EditarTarefa(tarefa.Id)" />
+            <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" OnClick="() => ExcluirTarefa(tarefa.Id)" />
         </MudTd>
     </RowTemplate>
     <PagerContent>
@@ -71,6 +71,8 @@
             if (!string.IsNullOrEmpty(novaTarefa))
             {
                 Snackbar.Add($"Tarefa {novaTarefa} criada com sucesso!", Severity.Success);
+                await AtualizarListaDeTarefas();
+                Navigation.NavigateTo(Navigation.BaseUri, forceLoad: false);
             }
 
             _loading = false;
@@ -138,5 +140,12 @@
             return true;
         return false;
     }
+
+    private async Task AtualizarListaDeTarefas()
+    {
+        tarefas = await TarefaServices.ObterTodasTarefasAsync();
+        StateHasChanged();
+    }
+
 }
 

@@ -344,7 +344,14 @@ public class TarefaController : ControllerBase
     public async Task<ActionResult<List<TarefaViewModel>>> ObterTodosTarefasAsync()
     {
         var tarefas = await _context.Tarefas.Include(t => t.Pausas).ToListAsync();
-        return tarefas.Any() ? Ok(_mapper.Map<List<TarefaViewModel>>(tarefas)) : NotFound("Nenhuma tarefa encontrada.");
+        if (tarefas.Any())
+        {
+            return Ok(_mapper.Map<List<TarefaViewModel>>(tarefas.OrderByDescending(t => t.Inicio)));
+        }
+        else
+        {
+            return NotFound("Nenhuma tarefa encontrada.");
+        }
     }
 
     [HttpGet("{id}")]
@@ -395,7 +402,7 @@ public class TarefaController : ControllerBase
         return Ok(tarefaVM);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("Deletar/{id}")]
     public async Task<IActionResult> DeletarTarefa(Guid id)
     {
         var tarefa = await _context.Tarefas.Include(t => t.Pausas).FirstOrDefaultAsync(t => t.Id == id);
