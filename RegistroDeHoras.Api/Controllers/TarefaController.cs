@@ -364,18 +364,27 @@ public class TarefaController : ControllerBase
     [HttpPost("Nova")]
     public async Task<ActionResult> CriarTarefa([FromBody] TarefaViewModel tarefaVM)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        try
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var tarefa = _mapper.Map<Tarefa>(tarefaVM);
-        tarefa.StatusDaTarefa = "Em andamento";
-        tarefa.Inicio = DateTime.Now;
+            var tarefa = _mapper.Map<Tarefa>(tarefaVM);
+            tarefa.StatusDaTarefa = "Em andamento";
+            tarefa.Inicio = DateTime.Now;
 
-        await _context.Tarefas.AddAsync(tarefa);
-        await _context.SaveChangesAsync();
+            await _context.Tarefas.AddAsync(tarefa);
+            await _context.SaveChangesAsync();
 
-        var url = $"{Request.Scheme}://{Request.Host}/api/tarefas/{tarefa.Id}";
+            var url = $"{Request.Scheme}://{Request.Host}/api/tarefas/{tarefa.Id}";
 
-        return Created(url, _mapper.Map<TarefaViewModel>(tarefa));
+            return Created(url, _mapper.Map<TarefaViewModel>(tarefa));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException);
+            throw;
+        }
+
     }
 
     [HttpPost("Parar")]
